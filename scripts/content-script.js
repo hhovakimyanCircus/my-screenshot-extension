@@ -1,4 +1,8 @@
 const onDocumentClick = function (event) {
+    if (!chrome.runtime?.id) {
+        return;
+    }
+
     const elementInnerText = event.target.innerText;
     chrome.runtime.sendMessage({
         event : "CLICK_ON_PAGE",
