@@ -3,11 +3,10 @@ const onDocumentClick = function (event) {
         return;
     }
 
-    const elementInnerText = event.target.innerText;
     chrome.runtime.sendMessage({
-        event : "CLICK_ON_PAGE",
-        data : {
-            elementName: elementInnerText
+        event: "CLICK_ON_PAGE",
+        data: {
+            elementName: event.target.innerText
         }
     });
 }
@@ -17,7 +16,5 @@ chrome.runtime.onMessage.addListener((message, sender) => {
         document.getElementsByTagName('body')[0].removeEventListener('click', onDocumentClick);
     } else if (message.startRecording) {
         document.getElementsByTagName('body')[0].addEventListener('click', onDocumentClick);
-    } else if (message.image) {
-        console.log(message.image);
     }
 });
