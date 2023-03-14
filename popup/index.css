@@ -1,0 +1,17 @@
+body {
+    width: 400px;
+}
+
+.innerContent {
+    padding: 20px 40px;
+}
+
+.actionButtons {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+}
+
+button {
+    padding: 10px;
+}
