@@ -30,6 +30,7 @@ try {
                         website: sender.tab.url.split('/')[2],
                         setupId: extensionId,
                         date: new Date().toLocaleString(),
+                        sessionId: message.sessionId,
                     }
                 )
             });
