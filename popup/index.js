@@ -1,17 +1,64 @@
+let currentAccessToken = '';
+let currentUseId = '';
+
 const startRecordingBtn = document.getElementById('startRecordingBtn');
-startRecordingBtn.addEventListener('click', function () {
+const stopRecordingBtn = document.getElementById('stopRecordingBtn');
+const authenticateSection = document.getElementById('authenticateSection');
+const recordingSection = document.getElementById('recordingSection');
+
+const startRecordingFunction = function () {
     chrome.tabs.query({ active: true }).then((result) => {
         if (result?.[0]?.id) {
-            chrome.tabs.sendMessage(result[0].id, {startRecording: true});
+            chrome.tabs.sendMessage(result[0].id, {startRecording: true, userId: currentUseId, accessToken: currentAccessToken});
+            startRecordingBtn.classList.add('hidden');
+            recordingSection.classList.remove('hidden');
         }
     });
-})
+};
 
-const stopRecordingBtn = document.getElementById('stopRecordingBtn');
-stopRecordingBtn.addEventListener('click', function () {
+const stopRecordingFunction = function () {
     chrome.tabs.query({ active: true }).then((result) => {
         if (result?.[0]?.id) {
             chrome.tabs.sendMessage(result[0].id, {stopRecording: true});
+            startRecordingBtn.classList.remove('hidden');
+            recordingSection.classList.add('hidden');
         }
     });
-})
+};
+
+const onSignIn = function (authenticationData) {
+    currentAccessToken = authenticationData.accessToken;
+    currentUseId = authenticationData.userId;
+    startRecordingBtn.classList.remove('hidden');
+    authenticateSection.classList.add('hidden');
+
+    startRecordingBtn.addEventListener('click', startRecordingFunction);
+    stopRecordingBtn.addEventListener('click', stopRecordingFunction);
+}
+
+const onSignOut = function () {
+    currentAccessToken =  '';
+    currentUseId = '';
+    startRecordingBtn.classList.add('hidden');
+    authenticateSection.classList.remove('hidden');
+
+    startRecordingBtn.removeEventListener('click', startRecordingFunction);
+    stopRecordingBtn.removeEventListener('click', stopRecordingFunction);
+}
+
+chrome.storage.local.get(["user"]).then((result) => {
+    if (result?.user) {
+        onSignIn(result.user);
+    } else {
+        onSignOut();
+    }
+});
+
+chrome.storage.onChanged.addListener((changes, namespace) => {
+    const authenticationData = changes.user?.newValue || null;
+    if (authenticationData) {
+        onSignIn(authenticationData);
+    } else {
+        onSignOut();
+    }
+});

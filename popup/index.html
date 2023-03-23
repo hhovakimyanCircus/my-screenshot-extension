@@ -7,9 +7,17 @@
     <body>
         <div class="innerContent">
             <h2>Welcome to My Screenshot</h2>
+            <div id="authenticateSection" class="authenticateSection">
+                <p>Authenticate <a href="https://screenshoter-dfcd1.web.app" target="_blank">here</a> to use this extension</p>
+            </div>
             <div class="actionButtons">
-                <button id="startRecordingBtn" class="btn btn-success">Start Recording</button>
-                <button id="stopRecordingBtn" class="btn btn-danger">Stop Recording</button>
+                <button id="startRecordingBtn" class="btn btn-success hidden">Start Recording</button>
+                <div id="recordingSection" class="hidden">
+                    <div>Recording Started 00:00</div>
+                    <div>
+                        <button id="stopRecordingBtn" class="btn btn-danger">Stop</button>
+                    </div>
+                </div>
             </div>
         </div>
         <script src="bootstrap.min.js"></script>
