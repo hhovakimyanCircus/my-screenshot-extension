@@ -1,4 +1,4 @@
-let currentAccessToken = '';
+let currentRefreshToken = '';
 let currentUseId = '';
 
 const startRecordingBtn = document.getElementById('startRecordingBtn');
@@ -9,7 +9,7 @@ const recordingSection = document.getElementById('recordingSection');
 const startRecordingFunction = function () {
     chrome.tabs.query({ active: true }).then((result) => {
         if (result?.[0]?.id) {
-            chrome.tabs.sendMessage(result[0].id, {startRecording: true, userId: currentUseId, accessToken: currentAccessToken});
+            chrome.tabs.sendMessage(result[0].id, {startRecording: true, userId: currentUseId, refreshToken: currentRefreshToken});
             startRecordingBtn.classList.add('hidden');
             recordingSection.classList.remove('hidden');
         }
@@ -27,8 +27,8 @@ const stopRecordingFunction = function () {
 };
 
 const onSignIn = function (authenticationData) {
-    currentAccessToken = authenticationData.accessToken;
-    currentUseId = authenticationData.userId;
+    currentRefreshToken = authenticationData.refreshToken;
+    currentUseId = authenticationData.id;
     startRecordingBtn.classList.remove('hidden');
     authenticateSection.classList.add('hidden');
 
@@ -37,7 +37,7 @@ const onSignIn = function (authenticationData) {
 }
 
 const onSignOut = function () {
-    currentAccessToken =  '';
+    currentRefreshToken =  '';
     currentUseId = '';
     startRecordingBtn.classList.add('hidden');
     authenticateSection.classList.remove('hidden');

@@ -9,7 +9,7 @@ function generateUniqueSessionId() {
     return hex;
 }
 
-const onDocumentClick = function (event, sessionId) {
+const onDocumentClick = function (event, sessionId, userId, refreshToken) {
     if (!chrome.runtime?.id) {
         return;
     }
@@ -17,6 +17,8 @@ const onDocumentClick = function (event, sessionId) {
     chrome.runtime.sendMessage({
         event: "CLICK_ON_PAGE",
         sessionId: sessionId,
+        userId: userId,
+        refreshToken: refreshToken,
         data: {
             elementName: event.target.innerText,
         }
@@ -32,7 +34,7 @@ chrome.runtime.onMessage.addListener((message, sender) => {
             .addEventListener(
             'click',
             (event) => {
-                    onDocumentClick(event, sessionId)
+                    onDocumentClick(event, sessionId, message.userId, message.refreshToken)
                 }
             );
     }
