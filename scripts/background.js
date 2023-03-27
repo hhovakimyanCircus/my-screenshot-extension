@@ -47,7 +47,7 @@ const insertIntoDatabase = async (refreshToken, userId, data) => {
         idToken = await refreshIdToken(refreshToken);
     }
 
-    fetch(`${firebaseConfig.databaseURL}/${userId}/data.json?auth=${idToken}`, {
+    fetch(`${firebaseConfig.databaseURL}/users/${userId}/.json?auth=${idToken}`, {
         method: "POST",
         headers: {
             'Content-Type': 'application/json',
@@ -55,9 +55,7 @@ const insertIntoDatabase = async (refreshToken, userId, data) => {
         body: JSON.stringify(data),
     })
         .then((response) => response.json())
-        .then((data) => {
-            console.log(data);
-        }).catch((error) => { console.error(error) })
+        .catch((error) => { console.error(error) })
 }
 
 try {
