@@ -75,15 +75,6 @@ try {
             });
         }
     });
-
-
-    chrome.runtime.onMessageExternal.addListener( (message, sender, sendResponse) => {
-        if (message.event === 'LOGIN') {
-            chrome.storage.local.set({ user: {id: message.userId, refreshToken: message.refreshToken} });
-        } else if (message.event === 'LOGOUT') {
-            chrome.storage.local.set({ user: null });
-        }
-    });
 } catch (error) {
     console.error(error);
 }

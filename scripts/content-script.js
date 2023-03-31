@@ -25,6 +25,14 @@ const onDocumentClick = function (event, sessionId, userId, refreshToken) {
     });
 }
 
+window.addEventListener('MY_SCREENSHOTER_LOGIN', (event) => {
+    chrome.storage.local.set({ user: {id: event.detail.userId, refreshToken: event.detail.refreshToken} });
+});
+
+window.addEventListener('MY_SCREENSHOTER_LOGOUT', () => {
+    chrome.storage.local.set({ user: null });
+});
+
 chrome.runtime.onMessage.addListener((message, sender) => {
     if (message.stopRecording) {
         document.getElementsByTagName('body')[0].removeEventListener('click', onDocumentClick);
