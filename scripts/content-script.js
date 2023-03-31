@@ -1,13 +1,4 @@
-function generateUniqueSessionId() {
-    const randomPool = new Uint8Array(32);
-    crypto.getRandomValues(randomPool);
-    let hex = '';
-    for (let i = 0; i < randomPool.length; ++i) {
-        hex += randomPool[i].toString(16);
-    }
 
-    return hex;
-}
 
 const onDocumentClick = function (event, sessionId, userId, refreshToken) {
     if (!chrome.runtime?.id) {
@@ -37,12 +28,11 @@ chrome.runtime.onMessage.addListener((message, sender) => {
     if (message.stopRecording) {
         document.getElementsByTagName('body')[0].removeEventListener('click', onDocumentClick);
     } else if (message.startRecording) {
-        const sessionId = generateUniqueSessionId();
         document.getElementsByTagName('body')[0]
             .addEventListener(
             'click',
             (event) => {
-                    onDocumentClick(event, sessionId, message.userId, message.refreshToken)
+                    onDocumentClick(event, message.sessionId, message.userId, message.refreshToken)
                 }
             );
     }

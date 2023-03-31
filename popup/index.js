@@ -6,8 +6,21 @@ const startRecordingBtn = document.getElementById('startRecordingBtn');
 const stopRecordingBtn = document.getElementById('stopRecordingBtn');
 const authenticateSection = document.getElementById('authenticateSection');
 const recordingSection = document.getElementById('recordingSection');
+const recordingLinkSection = document.getElementById('recordingLinkSection');
+const recordingLink = document.getElementById('recordingLink');
 const timer = document.getElementById('timer');
 let recordingTimerId = null;
+
+function generateUniqueSessionId() {
+    const randomPool = new Uint8Array(32);
+    crypto.getRandomValues(randomPool);
+    let hex = '';
+    for (let i = 0; i < randomPool.length; ++i) {
+        hex += randomPool[i].toString(16);
+    }
+
+    return hex;
+}
 
 const updateRecordingTimer = function (startTime) {
     let currentDiffTimestamp = Math.ceil((Date.now() - startTime) / 1000);
@@ -34,20 +47,23 @@ const stopRecordingTimer = function () {
 const startRecording = function () {
     chrome.tabs.query({ active: true }).then((result) => {
         if (result?.[0]?.id) {
+            const currentSessionId = generateUniqueSessionId();
             chrome.tabs.sendMessage(
                 result[0].id,
                 {
                     startRecording: true,
                     userId: currentUseId,
-                    refreshToken: currentRefreshToken
+                    refreshToken: currentRefreshToken,
+                    sessionId: currentSessionId,
                 }
             );
             startRecordingBtn.classList.add('hidden');
             stopRecordingBtn.addEventListener('click', stopRecording);
             recordingSection.classList.remove('hidden');
+            recordingLinkSection.classList.add('hidden');
 
             recordingStartTime = Date.now();
-            chrome.storage.local.set({ recordingStartTime: recordingStartTime });
+            chrome.storage.local.set({ recordingStartTime: recordingStartTime, sessionId: currentSessionId });
             startRecordingTimer();
         }
     });
@@ -60,9 +76,13 @@ const stopRecording = function () {
             startRecordingBtn.addEventListener('click', startRecording);
             startRecordingBtn.classList.remove('hidden');
             recordingSection.classList.add('hidden');
+            chrome.storage.local.get(["sessionId"]).then((result) => {
+                recordingLinkSection.classList.remove('hidden');
+                recordingLink.setAttribute('href', `https://screenshoter-dfcd1.web.app/recording/${result?.sessionId}`)
+            })
 
             recordingStartTime = null;
-            chrome.storage.local.set({ recordingStartTime: null });
+            chrome.storage.local.set({ recordingStartTime: null, sessionId: null });
             stopRecordingTimer();
         }
     });
@@ -90,13 +110,14 @@ const onSignOut = function () {
     if (recordingStartTime) {
         recordingSection.classList.add('hidden');
         stopRecordingBtn.removeEventListener('click', stopRecording);
+        recordingLinkSection.classList.add('hidden');
     } else {
         startRecordingBtn.classList.add('hidden');
         startRecordingBtn.removeEventListener('click', startRecording);
     }
 
     authenticateSection.classList.remove('hidden');
-    chrome.storage.local.set({ recordingStartTime: null });
+    chrome.storage.local.set({ recordingStartTime: null, sessionId: null });
     stopRecordingTimer();
 }
 
