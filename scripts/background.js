@@ -37,12 +37,12 @@ const refreshIdToken = async (refreshToken) => {
     }
 }
 
-const insertIntoDatabase = async (refreshToken, userId, sessionId, data) => {
+const insertIntoDatabase = async (refreshToken, userId, recordingId, data) => {
     if (!idToken) {
         idToken = await refreshIdToken(refreshToken);
     }
 
-    fetch(`${firebaseConfig.databaseURL}/users/${userId}/${sessionId}/.json?auth=${idToken}`, {
+    fetch(`${firebaseConfig.databaseURL}/users/${userId}/${recordingId}/steps.json?auth=${idToken}`, {
         method: "POST",
         headers: {
             'Content-Type': 'application/json',
