@@ -1,5 +1,3 @@
-
-
 const onDocumentClick = function (event, sessionId, userId, refreshToken) {
     if (!chrome.runtime?.id) {
         return;

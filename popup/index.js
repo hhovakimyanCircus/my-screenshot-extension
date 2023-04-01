@@ -131,28 +131,6 @@ chrome.storage.local.get(["user", "recordingStartTime"]).then((result) => {
     }
 });
 
-chrome.webNavigation.onCommitted.addListener((details) => {
-    if (["reload", "link"].includes(details.transitionType)) {
-        chrome.webNavigation.onCompleted.addListener(function onComplete() {
-            chrome.storage.local.get(["sessionId"]).then((result) => {
-                if (result?.sessionId) {
-                    chrome.tabs.sendMessage(
-                        details.tabId,
-                        {
-                            startRecording: true,
-                            userId: currentUseId,
-                            refreshToken: currentRefreshToken,
-                            sessionId: result.sessionId,
-                        }
-                    );
-                }
-            })
-
-            chrome.webNavigation.onCompleted.removeListener(onComplete);
-        });
-    }
-});
-
 chrome.storage.onChanged.addListener((changes, namespace) => {
     if ("user" in changes) {
         const authenticationData = changes.user?.newValue || null;

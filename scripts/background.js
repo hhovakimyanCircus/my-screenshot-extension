@@ -78,3 +78,25 @@ try {
 } catch (error) {
     console.error(error);
 }
+
+chrome.webNavigation.onCommitted.addListener((details) => {
+    if (["reload", "link"].includes(details.transitionType)) {
+        chrome.webNavigation.onCompleted.addListener(function onComplete() {
+            chrome.storage.local.get(["sessionId", "user"]).then((result) => {
+                if (result?.sessionId && result?.user) {
+                    chrome.tabs.sendMessage(
+                        details.tabId,
+                        {
+                            startRecording: true,
+                            userId: result.user.id,
+                            refreshToken: result.user.refreshToken,
+                            sessionId: result.sessionId,
+                        }
+                    );
+                }
+            })
+
+            chrome.webNavigation.onCompleted.removeListener(onComplete);
+        });
+    }
+});
