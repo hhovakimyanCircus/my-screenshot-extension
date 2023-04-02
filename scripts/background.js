@@ -53,7 +53,7 @@ const insertRecordingStepsIntoDb = async (refreshToken, userId, recordingId, dat
         .catch((error) => { console.error(error) })
 }
 
-const insertRecordingTimeIntoDb = async (userId, recordingId, refreshToken, recordingTimeSeconds) => {
+const insertRecordingTimeIntoDb = async (userId, recordingId, refreshToken, recordingTimeMilliSeconds) => {
     if (!idToken) {
         idToken = await refreshIdToken(refreshToken);
     }
@@ -66,7 +66,7 @@ const insertRecordingTimeIntoDb = async (userId, recordingId, refreshToken, reco
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                recordingTime: recordingTimeSeconds,
+                recordingTime: recordingTimeMilliSeconds,
             }),
         }
     )
