@@ -24,6 +24,16 @@ window.addEventListener('MY_SCREENSHOTER_LOGOUT', () => {
 
 chrome.runtime.onMessage.addListener((message, sender) => {
     if (message.stopRecording) {
+        chrome.runtime.sendMessage({
+            event: "STOP_RECORDING",
+            sessionId: message.data.sessionId,
+            userId: message.data.userId,
+            refreshToken: message.data.refreshToken,
+            data: {
+                recordingTime: Date.now() - message.data.recordingStartTime,
+            }
+        });
+
         document.getElementsByTagName('body')[0].removeEventListener('click', onDocumentClick);
     } else if (message.startRecording) {
         document.getElementsByTagName('body')[0]

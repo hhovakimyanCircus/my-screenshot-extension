@@ -37,7 +37,7 @@ const refreshIdToken = async (refreshToken) => {
     }
 }
 
-const insertIntoDatabase = async (refreshToken, userId, recordingId, data) => {
+const insertRecordingStepsIntoDb = async (refreshToken, userId, recordingId, data) => {
     if (!idToken) {
         idToken = await refreshIdToken(refreshToken);
     }
@@ -53,26 +53,56 @@ const insertIntoDatabase = async (refreshToken, userId, recordingId, data) => {
         .catch((error) => { console.error(error) })
 }
 
+const insertRecordingTimeIntoDb = async (userId, recordingId, refreshToken, recordingTimeSeconds) => {
+    if (!idToken) {
+        idToken = await refreshIdToken(refreshToken);
+    }
+
+    fetch(
+        `${firebaseConfig.databaseURL}/users/${userId}/${recordingId}/details/.json?auth=${idToken}`,
+        {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                recordingTime: recordingTimeSeconds,
+            }),
+        }
+    )
+        .then((response) => response.json())
+        .catch((error) => { console.error(error) })
+}
+
 try {
     const extensionId = chrome.i18n.getMessage("@@extension_id");
 
     chrome.runtime.onMessage.addListener((message, sender) => {
-        if (sender.tab && message.event === "CLICK_ON_PAGE") {
-            chrome.tabs.captureVisibleTab(null, {}, function (image) {
-                insertIntoDatabase(
-                    message.refreshToken,
+        if (sender.tab) {
+            if (message.event === "CLICK_ON_PAGE") {
+                chrome.tabs.captureVisibleTab(null, {}, function (image) {
+                    insertRecordingStepsIntoDb(
+                        message.refreshToken,
+                        message.userId,
+                        message.sessionId,
+                        {
+                            clickedElementName: message.data.elementName,
+                            image: image,
+                            url: sender.tab.url,
+                            website: sender.tab.url.split('/')[2],
+                            setupId: extensionId,
+                            timestamp: Date.now(),
+                        }
+                    )
+                });
+            } else if (message.event === 'STOP_RECORDING') {
+                insertRecordingTimeIntoDb(
                     message.userId,
                     message.sessionId,
-                    {
-                        clickedElementName: message.data.elementName,
-                        image: image,
-                        url: sender.tab.url,
-                        website: sender.tab.url.split('/')[2],
-                        setupId: extensionId,
-                        timestamp: Date.now(),
-                    }
-                )
-            });
+                    message.refreshToken,
+                    message.data.recordingTime
+                );
+            }
         }
     });
 } catch (error) {

@@ -70,20 +70,34 @@ const startRecording = function () {
 };
 
 const stopRecording = function () {
-    chrome.tabs.query({ active: true }).then((result) => {
-        if (result?.[0]?.id) {
-            chrome.tabs.sendMessage(result[0].id, {stopRecording: true});
-            startRecordingBtn.addEventListener('click', startRecording);
-            startRecordingBtn.classList.remove('hidden');
-            recordingSection.classList.add('hidden');
-            chrome.storage.local.get(["sessionId"]).then((result) => {
-                recordingLinkSection.classList.remove('hidden');
-                recordingLink.setAttribute('href', `https://screenshoter-dfcd1.web.app/recording/${result?.sessionId}`)
-            })
+    chrome.tabs.query({ active: true }).then((activeTabsResult) => {
+        if (activeTabsResult?.[0]?.id) {
+            const tabId = activeTabsResult[0].id;
+            chrome.storage.local.get(["user", "recordingStartTime", "sessionId"]).then((result) => {
+                chrome.tabs.sendMessage(
+                    tabId,
+                    {
+                        stopRecording: true,
+                        data: {
+                            userId: result?.user?.id,
+                            refreshToken: result?.user?.refreshToken,
+                            sessionId: result?.sessionId,
+                            recordingStartTime: result?.recordingStartTime,
+                        }
+                    }
+                );
 
-            recordingStartTime = null;
-            chrome.storage.local.set({ recordingStartTime: null, sessionId: null });
-            stopRecordingTimer();
+                startRecordingBtn.addEventListener('click', startRecording);
+                startRecordingBtn.classList.remove('hidden');
+                recordingSection.classList.add('hidden');
+
+                recordingLinkSection.classList.remove('hidden');
+                recordingLink.setAttribute('href', `https://screenshoter-dfcd1.web.app/recording/${result?.sessionId}`);
+
+                recordingStartTime = null;
+                chrome.storage.local.set({ recordingStartTime: null, sessionId: null });
+                stopRecordingTimer();
+            });
         }
     });
 };
