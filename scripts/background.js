@@ -3,8 +3,6 @@ const firebaseConfig = {
     databaseURL: "https://screenshoter-dfcd1-default-rtdb.firebaseio.com",
 };
 
-let idToken;
-
 const refreshIdToken = async (refreshToken) => {
     const data = {
         grant_type: 'refresh_token',
@@ -37,11 +35,7 @@ const refreshIdToken = async (refreshToken) => {
     }
 }
 
-const insertRecordingStepsIntoDb = async (refreshToken, userId, recordingId, data) => {
-    if (!idToken) {
-        idToken = await refreshIdToken(refreshToken);
-    }
-
+const insertRecordingStepsIntoDb = async (userId, recordingId, idToken, data) => {
     fetch(`${firebaseConfig.databaseURL}/users/${userId}/${recordingId}/steps.json?auth=${idToken}`, {
         method: "POST",
         headers: {
@@ -53,11 +47,7 @@ const insertRecordingStepsIntoDb = async (refreshToken, userId, recordingId, dat
         .catch((error) => { console.error(error) })
 }
 
-const insertRecordingTimeIntoDb = async (userId, recordingId, refreshToken, recordingTimeMilliSeconds) => {
-    if (!idToken) {
-        idToken = await refreshIdToken(refreshToken);
-    }
-
+const insertRecordingTimeIntoDb = async (userId, recordingId, idToken, recordingTimeMilliSeconds) => {
     fetch(
         `${firebaseConfig.databaseURL}/users/${userId}/${recordingId}/details/.json?auth=${idToken}`,
         {
@@ -77,37 +67,64 @@ const insertRecordingTimeIntoDb = async (userId, recordingId, refreshToken, reco
 try {
     const extensionId = chrome.i18n.getMessage("@@extension_id");
 
-    chrome.runtime.onMessage.addListener((message, sender) => {
-        if (sender.tab) {
-            if (message.event === "CLICK_ON_PAGE") {
-                chrome.tabs.captureVisibleTab(null, {}, function (image) {
-                    insertRecordingStepsIntoDb(
-                        message.refreshToken,
+    chrome.runtime.onMessage.addListener(async (message, sender) => {
+        if (sender.tab && ["CLICK_ON_PAGE", "STOP_RECORDING"].includes(message.event)) {
+            const result = await chrome.storage.local.get(["idToken"]);
+            let idToken = result?.idToken;
+            if (!idToken) {
+                idToken = await refreshIdToken(message.refreshToken);
+                chrome.storage.local.set({ idToken });
+            }
+
+            switch (message.event) {
+                case 'CLICK_ON_PAGE':
+                    chrome.tabs.captureVisibleTab(null, {}, function (image) {
+                        insertRecordingStepsIntoDb(
+                            message.userId,
+                            message.sessionId,
+                            idToken,
+                            {
+                                clickedElementName: message.data.elementName,
+                                image: image,
+                                url: sender.tab.url,
+                                website: sender.tab.url.split('/')[2],
+                                setupId: extensionId,
+                                timestamp: Date.now(),
+                            }
+                        )
+                    });
+                    break;
+                case 'STOP_RECORDING':
+                    insertRecordingTimeIntoDb(
                         message.userId,
                         message.sessionId,
-                        {
-                            clickedElementName: message.data.elementName,
-                            image: image,
-                            url: sender.tab.url,
-                            website: sender.tab.url.split('/')[2],
-                            setupId: extensionId,
-                            timestamp: Date.now(),
-                        }
-                    )
-                });
-            } else if (message.event === 'STOP_RECORDING') {
-                insertRecordingTimeIntoDb(
-                    message.userId,
-                    message.sessionId,
-                    message.refreshToken,
-                    message.data.recordingTime
-                );
+                        idToken,
+                        message.data.recordingTime
+                    );
+                    break;
+                default:
+                    break;
             }
         }
     });
 } catch (error) {
     console.error(error);
 }
+
+chrome.runtime.onInstalled.addListener(() => {
+    chrome.alarms.create('refreshIdToken', { periodInMinutes: 50 });
+});
+
+chrome.alarms.onAlarm.addListener((alarm) => {
+    if (alarm.name === 'refreshIdToken') {
+        chrome.storage.local.get(["user"]).then(async (result) => {
+            if (result?.user) {
+                const idToken = await refreshIdToken(result.user.refreshToken);
+                chrome.storage.local.set({ idToken });
+            }
+        });
+    }
+});
 
 chrome.webNavigation.onCommitted.addListener((details) => {
     if (["reload", "link"].includes(details.transitionType)) {
