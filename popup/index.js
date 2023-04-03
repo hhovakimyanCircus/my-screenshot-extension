@@ -95,7 +95,7 @@ const stopRecording = function () {
                 recordingLink.setAttribute('href', `https://screenshoter-dfcd1.web.app/recording/${result?.sessionId}`);
 
                 recordingStartTime = null;
-                chrome.storage.local.set({ recordingStartTime: null, sessionId: null });
+                chrome.storage.local.set({ recordingStartTime: null, sessionId: null, idToken: null });
                 stopRecordingTimer();
             });
         }
@@ -131,7 +131,7 @@ const onSignOut = function () {
     }
 
     authenticateSection.classList.remove('hidden');
-    chrome.storage.local.set({ recordingStartTime: null, sessionId: null });
+    chrome.storage.local.set({ recordingStartTime: null, sessionId: null, idToken: null });
     stopRecordingTimer();
 }
 
