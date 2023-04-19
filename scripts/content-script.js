@@ -14,6 +14,16 @@ const onDocumentClick = function (event, sessionId, userId, refreshToken) {
     });
 }
 
+const listenToPageClicks = (sessionId, userId, refreshToken) => {
+    document.getElementsByTagName('body')[0]
+        .addEventListener(
+            'click',
+            (event) => {
+                onDocumentClick(event, sessionId, userId, refreshToken)
+            }
+        );
+}
+
 const convertCssStylesToText = (styles) => {
     return Object.keys(styles)
         .reduce(
@@ -60,6 +70,48 @@ const addOverlayToScreen = (onRecordingStart) => {
     }, 3000)
 }
 
+const addStopRecordingButtonToScreen = () => {
+    const buttonWrapperStyles = {
+        width: '225px',
+        padding: '25px 0',
+        'border-radius': '7px',
+        'box-shadow': '0px 0px 19px 13px #00000040',
+        'background-color': 'grey',
+        position: 'fixed',
+        bottom: '30px',
+        left: '30px',
+        display: 'flex',
+        'justify-content': 'center',
+        'z-index': 50,
+    }
+
+    const buttonStyles = {
+        'background-color': '#FF5C77',
+        color: '#fff',
+        'font-weight': 700,
+        'font-size': '18px',
+        'text-align': 'center',
+        'border-radius': '7px',
+        cursor: 'pointer',
+        padding: '7px 16px',
+        outline: 'none',
+        width: '166px',
+        border: 0,
+    }
+
+    const buttonWrapper = document.createElement('div');
+    buttonWrapper.setAttribute('style', convertCssStylesToText(buttonWrapperStyles));
+
+    const button = document.createElement('button');
+    button.setAttribute('id', 'stopRecordingBtn');
+    button.setAttribute('style', convertCssStylesToText(buttonStyles));
+    button.innerText = 'Stop Recording';
+
+    buttonWrapper.appendChild(button)
+
+    document.body.appendChild(buttonWrapper);
+}
+
 window.addEventListener('MY_SCREENSHOTER_LOGIN', (event) => {
     chrome.storage.local.set({ user: {id: event.detail.userId, refreshToken: event.detail.refreshToken} });
 });
@@ -83,13 +135,8 @@ chrome.runtime.onMessage.addListener((message, sender) => {
         document.getElementsByTagName('body')[0].removeEventListener('click', onDocumentClick);
     } else if (message.startRecording) {
         addOverlayToScreen(() => {
-            document.getElementsByTagName('body')[0]
-                .addEventListener(
-                    'click',
-                    (event) => {
-                        onDocumentClick(event, message.sessionId, message.userId, message.refreshToken)
-                    }
-                );
+            listenToPageClicks(message.sessionId, message.userId, message.refreshToken);
+            addStopRecordingButtonToScreen();
         });
     }
 });
