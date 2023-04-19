@@ -8,8 +8,6 @@ const authenticateSection = document.getElementById('authenticateSection');
 const recordingSection = document.getElementById('recordingSection');
 const recordingLinkSection = document.getElementById('recordingLinkSection');
 const recordingLink = document.getElementById('recordingLink');
-const timer = document.getElementById('timer');
-let recordingTimerId = null;
 
 function generateUniqueSessionId() {
     const randomPool = new Uint8Array(32);
@@ -20,28 +18,6 @@ function generateUniqueSessionId() {
     }
 
     return hex;
-}
-
-const updateRecordingTimer = function (startTime) {
-    let currentDiffTimestamp = Math.ceil((Date.now() - startTime) / 1000);
-    let currentMinutes = Math.floor(currentDiffTimestamp / 60);
-    let currentSeconds = currentDiffTimestamp - (currentMinutes * 60);
-    timer.innerText = String(currentMinutes).padStart(2, '0') + ":" + String(currentSeconds).padStart(2, '0');
-}
-
-const startRecordingTimer = function () {
-    stopRecordingTimer();
-    updateRecordingTimer(recordingStartTime);
-    recordingTimerId = setInterval(() => {
-        updateRecordingTimer(recordingStartTime)
-    }, 1000);
-}
-
-const stopRecordingTimer = function () {
-    if (recordingTimerId) {
-        clearInterval(recordingTimerId);
-        recordingTimerId = null;
-    }
 }
 
 const startRecording = function () {
@@ -64,7 +40,6 @@ const startRecording = function () {
 
             recordingStartTime = Date.now();
             chrome.storage.local.set({ recordingStartTime: recordingStartTime, sessionId: currentSessionId });
-            startRecordingTimer();
         }
     });
 };
@@ -96,7 +71,6 @@ const stopRecording = function () {
 
                 recordingStartTime = null;
                 chrome.storage.local.set({ recordingStartTime: null, sessionId: null, idToken: null });
-                stopRecordingTimer();
             });
         }
     });
@@ -108,7 +82,6 @@ const onSignIn = function (authenticationData) {
     if (recordingStartTime) {
         recordingSection.classList.remove('hidden');
         stopRecordingBtn.addEventListener('click', stopRecording);
-        startRecordingTimer();
     } else {
         startRecordingBtn.classList.remove('hidden');
         startRecordingBtn.addEventListener('click', startRecording);
@@ -132,7 +105,6 @@ const onSignOut = function () {
 
     authenticateSection.classList.remove('hidden');
     chrome.storage.local.set({ recordingStartTime: null, sessionId: null, idToken: null });
-    stopRecordingTimer();
 }
 
 chrome.storage.local.get(["user", "recordingStartTime"]).then((result) => {
