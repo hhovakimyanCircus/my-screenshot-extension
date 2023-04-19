@@ -23,7 +23,7 @@ const convertCssStylesToText = (styles) => {
         .slice(0, -1);
 }
 
-const addOverlayToScreen = () => {
+const addOverlayToScreen = (onRecordingStart) => {
     const overlayWindowStyles = {
         background: 'rgba(0, 0, 0, .5)',
         width: '100%',
@@ -55,7 +55,8 @@ const addOverlayToScreen = () => {
     document.body.appendChild(overlayWindow);
 
     setTimeout(() => {
-        overlayWindow.remove()
+        overlayWindow.remove();
+        onRecordingStart();
     }, 3000)
 }
 
@@ -81,14 +82,14 @@ chrome.runtime.onMessage.addListener((message, sender) => {
 
         document.getElementsByTagName('body')[0].removeEventListener('click', onDocumentClick);
     } else if (message.startRecording) {
-        addOverlayToScreen();
-
-        document.getElementsByTagName('body')[0]
-            .addEventListener(
-            'click',
-            (event) => {
-                    onDocumentClick(event, message.sessionId, message.userId, message.refreshToken)
-                }
-            );
+        addOverlayToScreen(() => {
+            document.getElementsByTagName('body')[0]
+                .addEventListener(
+                    'click',
+                    (event) => {
+                        onDocumentClick(event, message.sessionId, message.userId, message.refreshToken)
+                    }
+                );
+        });
     }
 });
