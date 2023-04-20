@@ -117,6 +117,7 @@ const addStopRecordingButtonToScreen = () => {
 
     const buttonWrapper = document.createElement('div');
     buttonWrapper.setAttribute('style', convertCssStylesToText(buttonWrapperStyles));
+    buttonWrapper.setAttribute('id', 'myScreenshotStopRecordingWrapper');
 
     const button = document.createElement('button');
     button.setAttribute('id', 'stopRecordingBtn');
@@ -157,6 +158,7 @@ chrome.runtime.onMessage.addListener((message, sender) => {
         });
 
         document.getElementsByTagName('body')[0].removeEventListener('click', onDocumentClick);
+        document.getElementById('myScreenshotStopRecordingWrapper').remove();
     } else if (message.startRecording) {
         if (message.tabChange) {
             listenToPageClicks(message.sessionId, message.userId, message.refreshToken);
