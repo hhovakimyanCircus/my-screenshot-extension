@@ -30,6 +30,9 @@ const startRecording = function () {
 
             recordingStartTime = Date.now();
             chrome.storage.local.set({ recordingStartTime: recordingStartTime, sessionId: currentSessionId });
+
+            // Close popup
+            window.close();
         }
     });
 };
@@ -58,6 +61,9 @@ const stopRecording = function () {
 
                 recordingStartTime = null;
                 chrome.storage.local.set({ recordingStartTime: null, sessionId: null, idToken: null });
+
+                // Close popup
+                window.close();
             });
         }
     });
