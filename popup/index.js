@@ -3,11 +3,13 @@ let currentUseId = '';
 let recordingStartTime = null;
 
 const startRecordingBtn = document.getElementById('startRecordingBtn');
+const startRecordingSection = document.getElementById('startRecordingSession');
 const stopRecordingBtn = document.getElementById('stopRecordingBtn');
 const authenticateSection = document.getElementById('authenticateSection');
 const recordingSection = document.getElementById('recordingSection');
 const recordingLinkSection = document.getElementById('recordingLinkSection');
 const recordingLink = document.getElementById('recordingLink');
+const userFirstName = document.getElementById('userFirstName');
 
 function generateUniqueSessionId() {
     const randomPool = new Uint8Array(32);
@@ -33,7 +35,7 @@ const startRecording = function () {
                     sessionId: currentSessionId,
                 }
             );
-            startRecordingBtn.classList.add('hidden');
+            startRecordingSection.classList.add('hidden');
             stopRecordingBtn.addEventListener('click', stopRecording);
             recordingSection.classList.remove('hidden');
             recordingLinkSection.classList.add('hidden');
@@ -63,7 +65,7 @@ const stopRecording = function () {
                 );
 
                 startRecordingBtn.addEventListener('click', startRecording);
-                startRecordingBtn.classList.remove('hidden');
+                startRecordingSection.classList.remove('hidden');
                 recordingSection.classList.add('hidden');
 
                 recordingLinkSection.classList.remove('hidden');
@@ -83,7 +85,8 @@ const onSignIn = function (authenticationData) {
         recordingSection.classList.remove('hidden');
         stopRecordingBtn.addEventListener('click', stopRecording);
     } else {
-        startRecordingBtn.classList.remove('hidden');
+        startRecordingSection.classList.remove('hidden');
+        userFirstName.innerText = authenticationData.name.split(' ')[0];
         startRecordingBtn.addEventListener('click', startRecording);
     }
 
@@ -99,7 +102,7 @@ const onSignOut = function () {
         stopRecordingBtn.removeEventListener('click', stopRecording);
         recordingLinkSection.classList.add('hidden');
     } else {
-        startRecordingBtn.classList.add('hidden');
+        startRecordingSection.classList.add('hidden');
         startRecordingBtn.removeEventListener('click', startRecording);
     }
 

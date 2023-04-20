@@ -113,7 +113,15 @@ const addStopRecordingButtonToScreen = () => {
 }
 
 window.addEventListener('MY_SCREENSHOTER_LOGIN', (event) => {
-    chrome.storage.local.set({ user: {id: event.detail.userId, refreshToken: event.detail.refreshToken} });
+    chrome.storage.local.set(
+        {
+            user: {
+                id: event.detail.userId,
+                refreshToken: event.detail.refreshToken,
+                name: event.detail.userName,
+            }
+        }
+    );
 });
 
 window.addEventListener('MY_SCREENSHOTER_LOGOUT', () => {
