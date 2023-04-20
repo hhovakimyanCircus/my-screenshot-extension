@@ -158,9 +158,14 @@ chrome.runtime.onMessage.addListener((message, sender) => {
 
         document.getElementsByTagName('body')[0].removeEventListener('click', onDocumentClick);
     } else if (message.startRecording) {
-        addOverlayToScreen(() => {
+        if (message.tabChange) {
             listenToPageClicks(message.sessionId, message.userId, message.refreshToken);
             addStopRecordingButtonToScreen();
-        });
+        } else {
+            addOverlayToScreen(() => {
+                listenToPageClicks(message.sessionId, message.userId, message.refreshToken);
+                addStopRecordingButtonToScreen();
+            });
+        }
     }
 });

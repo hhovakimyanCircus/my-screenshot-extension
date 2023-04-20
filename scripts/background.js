@@ -138,6 +138,7 @@ chrome.webNavigation.onCommitted.addListener((details) => {
                             userId: result.user.id,
                             refreshToken: result.user.refreshToken,
                             sessionId: result.sessionId,
+                            tabChange: true,
                         }
                     );
                 }
