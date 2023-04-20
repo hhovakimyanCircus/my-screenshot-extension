@@ -40,15 +40,6 @@ const listenToPageClicks = (sessionId, userId, refreshToken) => {
         );
 }
 
-const convertCssStylesToText = (styles) => {
-    return Object.keys(styles)
-        .reduce(
-            (accumulator, currentValue) => accumulator + `${currentValue}:${styles[currentValue]};`,
-            ''
-        )
-        .slice(0, -1);
-}
-
 const addOverlayToScreen = (onRecordingStart) => {
     const overlayWindowStyles = {
         background: 'rgba(0, 0, 0, .5)',

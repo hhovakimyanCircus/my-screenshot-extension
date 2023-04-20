@@ -9,17 +9,6 @@ const authenticateSection = document.getElementById('authenticateSection');
 const stopRecordingSection = document.getElementById('stopRecordingSection');
 const userFirstName = document.getElementById('userFirstName');
 
-function generateUniqueSessionId() {
-    const randomPool = new Uint8Array(32);
-    crypto.getRandomValues(randomPool);
-    let hex = '';
-    for (let i = 0; i < randomPool.length; ++i) {
-        hex += randomPool[i].toString(16);
-    }
-
-    return hex;
-}
-
 const startRecording = function () {
     chrome.tabs.query({ active: true }).then((result) => {
         if (result?.[0]?.id) {
