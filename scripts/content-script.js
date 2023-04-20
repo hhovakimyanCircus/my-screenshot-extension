@@ -86,6 +86,24 @@ const addOverlayToScreen = (onRecordingStart) => {
     }, 3000)
 }
 
+const stopRecordingFromScreen = async () => {
+    document.getElementsByTagName('body')[0].removeEventListener('click', onDocumentClick);
+    document.getElementById('myScreenshotStopRecordingWrapper').remove();
+
+    const storageData = await chrome.storage.local.get(["sessionId", "user", "recordingStartTime"]);
+    chrome.runtime.sendMessage({
+        event: "STOP_RECORDING",
+        sessionId: storageData?.sessionId,
+        userId: storageData?.user?.id,
+        refreshToken: storageData?.user?.refreshToken,
+        data: {
+            recordingTime: Date.now() - storageData.recordingStartTime,
+        }
+    });
+
+    chrome.storage.local.set({ recordingStartTime: null, sessionId: null, idToken: null });
+}
+
 const addStopRecordingButtonToScreen = () => {
     const buttonWrapperStyles = {
         width: '225px',
@@ -123,6 +141,7 @@ const addStopRecordingButtonToScreen = () => {
     button.setAttribute('id', 'stopRecordingBtn');
     button.setAttribute('style', convertCssStylesToText(buttonStyles));
     button.innerText = 'Stop Recording';
+    button.addEventListener('click', stopRecordingFromScreen)
 
     buttonWrapper.appendChild(button)
 

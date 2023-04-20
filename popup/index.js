@@ -69,8 +69,6 @@ const stopRecording = function () {
 
                 recordingStartTime = null;
                 chrome.storage.local.set({ recordingStartTime: null, sessionId: null, idToken: null });
-
-                chrome.tabs.update({ url: `https://screenshoter-dfcd1.web.app/recording/${result?.sessionId}` });
             });
         }
     });
