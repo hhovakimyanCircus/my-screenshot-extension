@@ -1,5 +1,6 @@
 body {
-    width: 400px;
+    width: 230px;
+    background: #fff;
 }
 
 button {
@@ -11,17 +12,44 @@ button {
 }
 
 .innerContent {
-    padding: 20px 40px;
+    padding: 32px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.logo {
+    display: block;
+}
+
+.authenticateSection {
+    margin-top: 18px;
+}
+
+.authenticateSection p {
+    color: #74737A;
+    text-align: center;
+    margin-bottom: 18px;
+    font-weight: 400;
+    line-height: 19px;
+}
+
+.authenticateSection .signInBtn {
+    background: #FF5C77;
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    text-decoration: none;
+    display: block;
+    border-radius: 7px;
+    padding: 7px 37px;
+    text-align: center;
 }
 
 .actionButtons {
     display: flex;
     justify-content: space-between;
     padding: 10px 0;
-}
-
-.authenticateSection {
-    margin-top: 20px;
 }
 
 #recordingSection {
