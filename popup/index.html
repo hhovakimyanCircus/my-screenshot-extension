@@ -11,20 +11,12 @@
                 <p>Start recording the process</p>
                 <a href="https://screenshoter-dfcd1.web.app" target="_blank" class="signInBtn">Sign In</a>
             </div>
-            <div id="startRecordingSession" class="startRecordingSession">
+            <div id="startRecordingSession" class="hidden startRecordingSession">
                 <p>Hello, <span id="userFirstName"></span></p>
                 <button id="startRecordingBtn">Start Recording</button>
             </div>
-            <div class="actionButtons">
-                <div id="recordingSection" class="hidden">
-                    <div>Recording Started</div>
-                    <div>
-                        <button id="stopRecordingBtn" class="btn btn-danger">Stop</button>
-                    </div>
-                </div>
-            </div>
-            <div id="recordingLinkSection" class="hidden">
-                Click <a id="recordingLink" href="#" target="_blank">here</a> to see your recording
+            <div id="stopRecordingSection" class="hidden stopRecordingSection">
+                <button id="stopRecordingBtn">Stop</button>
             </div>
         </div>
         <script src="bootstrap.min.js"></script>

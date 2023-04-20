@@ -50,7 +50,7 @@ button {
     text-align: center;
 }
 
-.startRecordingSession {
+.startRecordingSession, .stopRecordingSection {
     margin-top: 24px;
 }
 
@@ -62,7 +62,7 @@ button {
     line-height: 19px;
 }
 
-.startRecordingSession button {
+.startRecordingSession button, .stopRecordingSection button {
     background: #FF5C77;
     color: #fff;
     font-size: 18px;
@@ -71,18 +71,4 @@ button {
     outline: none;
     width: 166px;
     border: 0;
-}
-
-.actionButtons {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 0;
-}
-
-#recordingSection {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
 }

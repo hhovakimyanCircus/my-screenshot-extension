@@ -6,9 +6,7 @@ const startRecordingBtn = document.getElementById('startRecordingBtn');
 const startRecordingSection = document.getElementById('startRecordingSession');
 const stopRecordingBtn = document.getElementById('stopRecordingBtn');
 const authenticateSection = document.getElementById('authenticateSection');
-const recordingSection = document.getElementById('recordingSection');
-const recordingLinkSection = document.getElementById('recordingLinkSection');
-const recordingLink = document.getElementById('recordingLink');
+const stopRecordingSection = document.getElementById('stopRecordingSection');
 const userFirstName = document.getElementById('userFirstName');
 
 function generateUniqueSessionId() {
@@ -35,10 +33,11 @@ const startRecording = function () {
                     sessionId: currentSessionId,
                 }
             );
+
             startRecordingSection.classList.add('hidden');
+
             stopRecordingBtn.addEventListener('click', stopRecording);
-            recordingSection.classList.remove('hidden');
-            recordingLinkSection.classList.add('hidden');
+            stopRecordingSection.classList.remove('hidden');
 
             recordingStartTime = Date.now();
             chrome.storage.local.set({ recordingStartTime: recordingStartTime, sessionId: currentSessionId });
@@ -66,13 +65,12 @@ const stopRecording = function () {
 
                 startRecordingBtn.addEventListener('click', startRecording);
                 startRecordingSection.classList.remove('hidden');
-                recordingSection.classList.add('hidden');
-
-                recordingLinkSection.classList.remove('hidden');
-                recordingLink.setAttribute('href', `https://screenshoter-dfcd1.web.app/recording/${result?.sessionId}`);
+                stopRecordingSection.classList.add('hidden');
 
                 recordingStartTime = null;
                 chrome.storage.local.set({ recordingStartTime: null, sessionId: null, idToken: null });
+
+                chrome.tabs.update({ url: `https://screenshoter-dfcd1.web.app/recording/${result?.sessionId}` });
             });
         }
     });
@@ -82,7 +80,7 @@ const onSignIn = function (authenticationData) {
     currentRefreshToken = authenticationData.refreshToken;
     currentUseId = authenticationData.id;
     if (recordingStartTime) {
-        recordingSection.classList.remove('hidden');
+        stopRecordingSection.classList.remove('hidden');
         stopRecordingBtn.addEventListener('click', stopRecording);
     } else {
         startRecordingSection.classList.remove('hidden');
@@ -98,9 +96,8 @@ const onSignOut = function () {
     currentUseId = '';
 
     if (recordingStartTime) {
-        recordingSection.classList.add('hidden');
+        stopRecordingSection.classList.add('hidden');
         stopRecordingBtn.removeEventListener('click', stopRecording);
-        recordingLinkSection.classList.add('hidden');
     } else {
         startRecordingSection.classList.add('hidden');
         startRecordingBtn.removeEventListener('click', startRecording);
