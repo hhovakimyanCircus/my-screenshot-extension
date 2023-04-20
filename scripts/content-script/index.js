@@ -19,7 +19,11 @@ const onDocumentClick = function (event, sessionId, userId, refreshToken) {
     highlightNode.setAttribute(
         'style',
         convertCssStylesToText(
-            {position: 'absolute', 'z-index': 1000, top: `${event.clientY}px`, left: `${event.clientX}px`, display: 'block', width: '160px', height: '80px'}
+            {
+                ...highlightNodeStyles,
+                top: `${event.clientY}px`,
+                left: `${event.clientX}px`
+            }
         )
     )
 
@@ -41,32 +45,13 @@ const listenToPageClicks = (sessionId, userId, refreshToken) => {
 }
 
 const addOverlayToScreen = (onRecordingStart) => {
-    const overlayWindowStyles = {
-        background: 'rgba(0, 0, 0, .5)',
-        width: '100%',
-        height: '100%',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        'z-index': 100,
-        display: 'flex',
-        'justify-content': 'center',
-        'align-items': 'center',
-    };
-
-    const overlayWindowTextStyles = {
-        color: '#fff',
-        'font-size': '47px',
-        'font-weight': 700,
-    };
-
     const overlayWindow = document.createElement('div');
     overlayWindow.setAttribute('id', 'my-screenshot-overlay-window');
-    overlayWindow.setAttribute('style', convertCssStylesToText(overlayWindowStyles));
+    overlayWindow.setAttribute('style', convertCssStylesToText(overlayStyles));
 
     const overlayWindowText = document.createElement('span');
     overlayWindowText.innerText = "Recording is starting 👌";
-    overlayWindowText.setAttribute('style', convertCssStylesToText(overlayWindowTextStyles))
+    overlayWindowText.setAttribute('style', convertCssStylesToText(overlayTextStyles))
     overlayWindow.appendChild(overlayWindowText);
 
     document.body.appendChild(overlayWindow);
@@ -96,41 +81,13 @@ const stopRecordingFromScreen = async () => {
 }
 
 const addStopRecordingButtonToScreen = () => {
-    const buttonWrapperStyles = {
-        width: '225px',
-        padding: '25px 0',
-        'border-radius': '7px',
-        'box-shadow': '0px 0px 19px 13px #00000040',
-        'background-color': 'grey',
-        position: 'fixed',
-        bottom: '30px',
-        left: '30px',
-        display: 'flex',
-        'justify-content': 'center',
-        'z-index': 50,
-    }
-
-    const buttonStyles = {
-        'background-color': '#FF5C77',
-        color: '#fff',
-        'font-weight': 700,
-        'font-size': '18px',
-        'text-align': 'center',
-        'border-radius': '7px',
-        cursor: 'pointer',
-        padding: '7px 16px',
-        outline: 'none',
-        width: '166px',
-        border: 0,
-    }
-
     const buttonWrapper = document.createElement('div');
-    buttonWrapper.setAttribute('style', convertCssStylesToText(buttonWrapperStyles));
+    buttonWrapper.setAttribute('style', convertCssStylesToText(stopRecordingButtonWrapperStyles));
     buttonWrapper.setAttribute('id', 'myScreenshotStopRecordingWrapper');
 
     const button = document.createElement('button');
     button.setAttribute('id', 'stopRecordingBtn');
-    button.setAttribute('style', convertCssStylesToText(buttonStyles));
+    button.setAttribute('style', convertCssStylesToText(stopRecordingButtonStyles));
     button.innerText = 'Stop Recording';
     button.addEventListener('click', stopRecordingFromScreen)
 
