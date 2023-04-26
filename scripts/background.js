@@ -79,6 +79,7 @@ try {
             switch (message.event) {
                 case 'CLICK_ON_PAGE':
                     chrome.tabs.captureVisibleTab(null, {}, function (image) {
+                        chrome.tabs.sendMessage(sender.tab.id, {event: "TAB_CAPTURED"});
                         insertRecordingStepsIntoDb(
                             message.userId,
                             message.sessionId,

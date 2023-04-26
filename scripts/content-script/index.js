@@ -7,15 +7,7 @@ const onDocumentClick = function (event, sessionId, userId, refreshToken) {
         return;
     }
 
-    chrome.runtime.sendMessage({
-        event: "CLICK_ON_PAGE",
-        sessionId: sessionId,
-        userId: userId,
-        refreshToken: refreshToken,
-        data: {
-            elementName: event.target.innerText,
-        }
-    });
+    document.getElementById('myScreenshotStopRecordingWrapper').style.display = 'none';
 
     const highlightNode = document.createElement('img');
     highlightNode.setAttribute('src', 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzEiIGhlaWdodD0iMzEiIHZpZXdCb3g9IjAgMCAzMSAzMSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTUuNSIgY3k9IjE1LjUiIHI9IjE0LjUiIGZpbGw9IiNGRkVDNTkiIGZpbGwtb3BhY2l0eT0iMC42IiBzdHJva2U9IiNGRkVDNTkiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4K')
@@ -32,6 +24,18 @@ const onDocumentClick = function (event, sessionId, userId, refreshToken) {
     )
 
     document.body.appendChild(highlightNode);
+
+    setTimeout(() => {
+        chrome.runtime.sendMessage({
+            event: "CLICK_ON_PAGE",
+            sessionId: sessionId,
+            userId: userId,
+            refreshToken: refreshToken,
+            data: {
+                elementName: event.target.innerText,
+            }
+        });
+    }, 100)
 
     setTimeout(() => {
         highlightNode.remove();
@@ -140,5 +144,7 @@ chrome.runtime.onMessage.addListener((message, sender) => {
                 addStopRecordingButtonToScreen();
             });
         }
+    } else if (message.event === 'TAB_CAPTURED') {
+        document.getElementById('myScreenshotStopRecordingWrapper').style.display = 'flex';
     }
 });
