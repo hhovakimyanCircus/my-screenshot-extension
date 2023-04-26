@@ -3,6 +3,10 @@ const onDocumentClick = function (event, sessionId, userId, refreshToken) {
         return;
     }
 
+    if (['myScreenshotStopRecordingWrapper', 'stopRecordingBtn'].includes(event.target.id)) {
+        return;
+    }
+
     chrome.runtime.sendMessage({
         event: "CLICK_ON_PAGE",
         sessionId: sessionId,
