@@ -49,6 +49,6 @@ const highlightNodeStyles = {
     position: 'absolute',
     'z-index': 1000,
     display: 'block',
-    width: '160px',
-    height: '80px'
+    width: '30px',
+    height: '30px'
 }
