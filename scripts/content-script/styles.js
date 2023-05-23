@@ -44,11 +44,3 @@ const stopRecordingButtonStyles = {
     width: '166px',
     border: 0,
 }
-
-const highlightNodeStyles = {
-    position: 'absolute',
-    'z-index': 1000,
-    display: 'block',
-    width: '30px',
-    height: '30px'
-}
