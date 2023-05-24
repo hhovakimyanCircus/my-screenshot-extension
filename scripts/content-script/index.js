@@ -1,3 +1,20 @@
+const firebaseConfig = {
+    apiKey: "AIzaSyBTVcYHhjfq3QCa0kAqsV7b8q4NfLQiXho",
+    databaseURL: "https://screenshoter-dfcd1-default-rtdb.firebaseio.com",
+};
+
+const insertRecordingStepsIntoDb = async (userId, recordingId, idToken, data) => {
+    fetch(`${firebaseConfig.databaseURL}/users/${userId}/${recordingId}/steps.json?auth=${idToken}`, {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .catch((error) => { console.error(error) })
+}
+
 const onDocumentClick = function (event, sessionId, userId, refreshToken) {
     if (!chrome.runtime?.id) {
         return;
@@ -9,22 +26,6 @@ const onDocumentClick = function (event, sessionId, userId, refreshToken) {
 
     document.getElementById('myScreenshotStopRecordingWrapper').style.display = 'none';
 
-    const highlightNode = document.createElement('img');
-    highlightNode.setAttribute('src', 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzEiIGhlaWdodD0iMzEiIHZpZXdCb3g9IjAgMCAzMSAzMSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTUuNSIgY3k9IjE1LjUiIHI9IjE0LjUiIGZpbGw9IiNGRkVDNTkiIGZpbGwtb3BhY2l0eT0iMC42IiBzdHJva2U9IiNGRkVDNTkiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4K')
-    highlightNode.setAttribute('id', 'highlight-node-image');
-    highlightNode.setAttribute(
-        'style',
-        convertCssStylesToText(
-            {
-                ...highlightNodeStyles,
-                top: `${event.clientY}px`,
-                left: `${event.clientX}px`
-            }
-        )
-    )
-
-    document.body.appendChild(highlightNode);
-
     setTimeout(() => {
         chrome.runtime.sendMessage({
             event: "CLICK_ON_PAGE",
@@ -33,13 +34,13 @@ const onDocumentClick = function (event, sessionId, userId, refreshToken) {
             refreshToken: refreshToken,
             data: {
                 elementName: event.target.innerText,
+            },
+            eventData: {
+                clientX: event.clientX,
+                clientY: event.clientY,
             }
         });
     }, 100)
-
-    setTimeout(() => {
-        highlightNode.remove();
-    }, 300)
 }
 
 const listenToPageClicks = (sessionId, userId, refreshToken) => {
@@ -145,6 +146,49 @@ chrome.runtime.onMessage.addListener((message, sender) => {
             });
         }
     } else if (message.event === 'TAB_CAPTURED') {
-        document.getElementById('myScreenshotStopRecordingWrapper').style.display = 'flex';
+        const canvas = document.createElement('canvas');
+        canvas.setAttribute('width', `${window.innerWidth}px`);
+        canvas.setAttribute('height', `${window.innerHeight}px`);
+        canvas.setAttribute('style', `height: ${window.innerHeight}px; width: ${window.innerWidth}px;`);
+        document.body.appendChild(canvas);
+
+        const context = canvas.getContext('2d');
+        const image = new Image();
+        image.src = message.image;
+
+        image.onload = function () {
+            context.drawImage(image, 0,0, window.innerWidth, window.innerHeight);
+
+            const centerX = message.eventData.clientX;
+            const centerY = message.eventData.clientY;
+            const radius = 20;
+
+            context.beginPath();
+            context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+            context.fillStyle = 'rgba(252, 104, 188, 0.7)';
+            context.fill();
+            context.stroke();
+
+            const base64image = canvas.toDataURL('image/png');
+
+
+            insertRecordingStepsIntoDb(
+              message.userId,
+              message.sessionId,
+              message.idToken,
+              {
+                  clickedElementName: message.clickedElementName,
+                  image: base64image,
+                  url: message.sender.tab.url,
+                  website: message.sender.tab.url.split('/')[2],
+                  setupId: message.extensionId,
+                  timestamp: Date.now(),
+              }
+            ).finally(() => {
+                canvas.remove();
+                image.remove();
+                document.getElementById('myScreenshotStopRecordingWrapper').style.display = 'flex';
+            })
+        }
     }
 });

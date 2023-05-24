@@ -35,18 +35,6 @@ const refreshIdToken = async (refreshToken) => {
     }
 }
 
-const insertRecordingStepsIntoDb = async (userId, recordingId, idToken, data) => {
-    fetch(`${firebaseConfig.databaseURL}/users/${userId}/${recordingId}/steps.json?auth=${idToken}`, {
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-    })
-        .then((response) => response.json())
-        .catch((error) => { console.error(error) })
-}
-
 const insertRecordingTimeIntoDb = async (userId, recordingId, idToken, recordingTimeMilliSeconds) => {
     fetch(
         `${firebaseConfig.databaseURL}/users/${userId}/${recordingId}/details/.json?auth=${idToken}`,
@@ -79,20 +67,17 @@ try {
             switch (message.event) {
                 case 'CLICK_ON_PAGE':
                     chrome.tabs.captureVisibleTab(null, {}, function (image) {
-                        chrome.tabs.sendMessage(sender.tab.id, {event: "TAB_CAPTURED"});
-                        insertRecordingStepsIntoDb(
-                            message.userId,
-                            message.sessionId,
+                        chrome.tabs.sendMessage(sender.tab.id, {
+                            event: "TAB_CAPTURED",
+                            userId: message.userId,
+                            sessionId: message.sessionId,
+                            image,
+                            eventData: message.eventData,
                             idToken,
-                            {
-                                clickedElementName: message.data.elementName,
-                                image: image,
-                                url: sender.tab.url,
-                                website: sender.tab.url.split('/')[2],
-                                setupId: extensionId,
-                                timestamp: Date.now(),
-                            }
-                        )
+                            clickedElementName: message.data.elementName,
+                            extensionId,
+                            sender,
+                        });
                     });
                     break;
                 case 'STOP_RECORDING':
