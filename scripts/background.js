@@ -87,9 +87,8 @@ try {
                         idToken,
                         message.data.recordingTime
                     );
-                    chrome.tabs.update(
-                        sender.tab.id,
-                        { url: `https://screenshoter-dfcd1.web.app/recording/${message.sessionId}` }
+                    chrome.tabs.create(
+                        { url: `https://screenshoter-clone.vercel.app/recording/${message.sessionId}` }
                     );
                     break;
                 default:
