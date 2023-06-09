@@ -25,6 +25,10 @@
     {
       "matches": ["https://*/*", "http://localhost:3000/*"],
       "js": ["scripts/utils.js", "scripts/content-script/styles.js", "scripts/content-script/index.js"]
+    },
+    {
+      "matches": ["http://localhost:3000/", "https://screenshoter-clone.vercel.app/"],
+      "js": ["scripts/detector/index.js"]
     }
   ]
 }
