@@ -137,3 +137,10 @@ chrome.webNavigation.onCommitted.addListener((details) => {
         });
     }
 });
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    chrome.tabs.sendMessage(tabId, {
+        event: 'URL_CHANGE',
+        data: {tabId, changeInfo, tab}
+    })
+})

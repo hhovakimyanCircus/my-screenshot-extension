@@ -44,13 +44,12 @@ const onDocumentClick = function (event, sessionId, userId, refreshToken) {
 }
 
 const listenToPageClicks = (sessionId, userId, refreshToken) => {
-    document.getElementsByTagName('body')[0]
-        .addEventListener(
-            'click',
-            (event) => {
-                onDocumentClick(event, sessionId, userId, refreshToken)
-            }
-        );
+    document.body.addEventListener(
+      'click',
+      (event) => {
+          onDocumentClick(event, sessionId, userId, refreshToken)
+      }
+    );
 }
 
 const addOverlayToScreen = (onRecordingStart) => {
@@ -86,7 +85,7 @@ const stopRecordingFromScreen = async () => {
         }
     });
 
-    chrome.storage.local.set({ recordingStartTime: null, sessionId: null, idToken: null });
+    chrome.storage.local.set({ recordingStartTime: null, sessionId: null, idToken: null, recording: false });
 }
 
 const addStopRecordingButtonToScreen = () => {
@@ -190,5 +189,14 @@ chrome.runtime.onMessage.addListener((message, sender) => {
                 document.getElementById('myScreenshotStopRecordingWrapper').style.display = 'flex';
             })
         }
+    } else if (message.event === 'URL_CHANGE') {
+        chrome.storage.local.get((result) => {
+            const elem = document.getElementById('myScreenshotStopRecordingWrapper');
+
+            if (result.recording && !elem) {
+                addStopRecordingButtonToScreen();
+                listenToPageClicks(result.sessionId, result.user.id, result.user.refreshToken)
+            }
+        })
     }
 });
