@@ -29,7 +29,7 @@ const startRecording = function () {
             stopRecordingSection.classList.remove('hidden');
 
             recordingStartTime = Date.now();
-            chrome.storage.local.set({ recordingStartTime: recordingStartTime, sessionId: currentSessionId });
+            chrome.storage.local.set({ recordingStartTime: recordingStartTime, sessionId: currentSessionId, recording: true, });
 
             // Close popup
             window.close();
@@ -60,7 +60,7 @@ const stopRecording = function () {
                 stopRecordingSection.classList.add('hidden');
 
                 recordingStartTime = null;
-                chrome.storage.local.set({ recordingStartTime: null, sessionId: null, idToken: null });
+                chrome.storage.local.set({ recordingStartTime: null, sessionId: null, idToken: null, recording: false });
 
                 // Close popup
                 window.close();
