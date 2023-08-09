@@ -10,10 +10,8 @@
     "type": "module"
   },
   "permissions": [
-    "desktopCapture",
     "tabs",
     "activeTab",
-    "scripting",
     "storage",
     "webNavigation",
     "alarms"
@@ -24,7 +22,7 @@
   "web_accessible_resources": [
     {
       "resources": ["scripts/detector/add-detector.js"],
-      "matches": ["http://localhost:3000/*", "https://screenshoter-clone.vercel.app/*"]
+      "matches": ["http://localhost:3000/*", "https://app.flowl.app/*"]
     }
   ],
   "content_scripts": [
@@ -33,7 +31,7 @@
       "js": ["scripts/utils.js", "scripts/content-script/styles.js", "scripts/content-script/index.js"]
     },
     {
-      "matches": ["http://localhost:3000/*", "https://screenshoter-clone.vercel.app/*"],
+      "matches": ["http://localhost:3000/*", "https://app.flowl.app/*"],
       "js": ["scripts/detector/index.js"]
     }
   ]
