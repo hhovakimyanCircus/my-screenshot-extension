@@ -1,4 +1,3 @@
-
 function generateUniqueSessionId() {
     const randomPool = new Uint8Array(32);
     crypto.getRandomValues(randomPool);

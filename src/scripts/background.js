@@ -88,7 +88,7 @@ try {
                         message.data.recordingTime
                     );
                     chrome.tabs.create(
-                        { url: `https://screenshoter-clone.vercel.app/recording/${message.sessionId}` }
+                        { url: `https://app.flowl.app/recording/${message.sessionId}` }
                     );
                     break;
                 default:

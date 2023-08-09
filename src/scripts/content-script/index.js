@@ -160,12 +160,14 @@ chrome.runtime.onMessage.addListener((message, sender) => {
 
             const centerX = message.eventData.clientX;
             const centerY = message.eventData.clientY;
-            const radius = 20;
+            const radius = 29;
 
             context.beginPath();
             context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
-            context.fillStyle = 'rgba(252, 104, 188, 0.7)';
+            context.fillStyle = 'rgba(255, 236, 89, 0.6)';
             context.fill();
+            context.strokeStyle = 'rgb(255, 236, 89)';
+            context.lineWidth = 2;
             context.stroke();
 
             const base64image = canvas.toDataURL('image/png');

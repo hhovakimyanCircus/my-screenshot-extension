@@ -1,9 +1,3 @@
-// const detector = document.createElement('div')
-// detector.setAttribute('id', 'flowl-screenshoter-extension-detector');
-// detector.style.display = 'none';
-//
-// document.body.appendChild(detector);
-
 function injectScript(file, node) {
   const th = document.getElementsByTagName(node)[0];
   const s = document.createElement('script');
