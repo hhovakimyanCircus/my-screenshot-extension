@@ -45,7 +45,7 @@ const onDocumentClick = function (event, sessionId, userId, refreshToken) {
 
 const listenToPageClicks = (sessionId, userId, refreshToken) => {
     document.body.addEventListener(
-      'click',
+      'mousedown',
       (event) => {
           onDocumentClick(event, sessionId, userId, refreshToken)
       }
@@ -118,6 +118,10 @@ window.addEventListener('MY_SCREENSHOTER_LOGIN', (event) => {
 
 window.addEventListener('MY_SCREENSHOTER_LOGOUT', () => {
     chrome.storage.local.set({ user: null });
+});
+
+window.addEventListener('MY_SCREENSHOTER_START_RECORDING', () => {
+    // @todo: Add start recording functionality here
 });
 
 chrome.runtime.onMessage.addListener((message, sender) => {
