@@ -121,7 +121,11 @@ window.addEventListener('MY_SCREENSHOTER_LOGOUT', () => {
 });
 
 window.addEventListener('MY_SCREENSHOTER_START_RECORDING', () => {
-    // @todo: Add start recording functionality here
+    chrome.runtime.sendMessage({
+        type: 'webEventCaptured',
+        event: 'MY_SCREENSHOTER_START_RECORDING',
+        sessionId: generateUniqueSessionId()
+    });
 });
 
 chrome.runtime.onMessage.addListener((message, sender) => {

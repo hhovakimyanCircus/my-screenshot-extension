@@ -100,6 +100,34 @@ try {
     console.error(error);
 }
 
+chrome.runtime.onMessage.addListener((message) => {
+    if (message.type === 'webEventCaptured' && message.event === 'MY_SCREENSHOTER_START_RECORDING') {
+        chrome.storage.local.get((res) => {
+            if (res?.user) {
+                chrome.tabs.query({ active: true }).then(result => {
+                    chrome.tabs.sendMessage(
+                      result[0].id,
+                      {
+                          startRecording: true,
+                          userId: res.user.id,
+                          refreshToken: res.user.refreshToken,
+                          sessionId: message.sessionId,
+                      }
+                    );
+
+                    const recordingStartTime = Date.now();
+
+                    chrome.storage.local.set({
+                        recordingStartTime: recordingStartTime,
+                        sessionId: message.sessionId,
+                        recording: true,
+                    });
+                })
+            }
+        })
+    }
+});
+
 chrome.runtime.onInstalled.addListener(() => {
     chrome.alarms.create('refreshIdToken', { periodInMinutes: 50 });
 });

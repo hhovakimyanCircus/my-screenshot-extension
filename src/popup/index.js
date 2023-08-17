@@ -10,31 +10,13 @@ const stopRecordingSection = document.getElementById('stopRecordingSection');
 const userFirstName = document.getElementById('userFirstName');
 
 const startRecording = function () {
-    chrome.tabs.query({ active: true }).then((result) => {
-        if (result?.[0]?.id) {
-            const currentSessionId = generateUniqueSessionId();
-            chrome.tabs.sendMessage(
-                result[0].id,
-                {
-                    startRecording: true,
-                    userId: currentUseId,
-                    refreshToken: currentRefreshToken,
-                    sessionId: currentSessionId,
-                }
-            );
-
-            startRecordingSection.classList.add('hidden');
-
-            stopRecordingBtn.addEventListener('click', stopRecording);
-            stopRecordingSection.classList.remove('hidden');
-
-            recordingStartTime = Date.now();
-            chrome.storage.local.set({ recordingStartTime: recordingStartTime, sessionId: currentSessionId, recording: true, });
-
-            // Close popup
-            window.close();
-        }
+    chrome.runtime.sendMessage({
+        type: 'webEventCaptured',
+        event: 'MY_SCREENSHOTER_START_RECORDING',
+        sessionId: generateUniqueSessionId()
     });
+
+    window.close();
 };
 
 const stopRecording = function () {
