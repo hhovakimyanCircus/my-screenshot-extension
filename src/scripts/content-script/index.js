@@ -93,13 +93,17 @@ const addStopRecordingButtonToScreen = () => {
     buttonWrapper.setAttribute('style', convertCssStylesToText(stopRecordingButtonWrapperStyles));
     buttonWrapper.setAttribute('id', 'myScreenshotStopRecordingWrapper');
 
-    const button = document.createElement('button');
+    const button = document.createElement('div');
     button.setAttribute('id', 'stopRecordingBtn');
     button.setAttribute('style', convertCssStylesToText(stopRecordingButtonStyles));
-    button.innerText = 'Stop Recording';
     button.addEventListener('click', stopRecordingFromScreen)
 
-    buttonWrapper.appendChild(button)
+    const whiteDot = document.createElement('div');
+    whiteDot.setAttribute('style', convertCssStylesToText(whiteDotStyles));
+
+    button.appendChild(whiteDot);
+
+    buttonWrapper.appendChild(button);
 
     document.body.appendChild(buttonWrapper);
 }

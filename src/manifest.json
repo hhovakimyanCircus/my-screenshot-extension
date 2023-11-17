@@ -34,5 +34,8 @@
       "matches": ["http://localhost:3000/*", "https://app.flowl.app/*"],
       "js": ["scripts/detector/index.js"]
     }
-  ]
+  ],
+  "icons": {
+    "16": "/icons/logo.png"
+  }
 }

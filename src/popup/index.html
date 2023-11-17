@@ -5,20 +5,47 @@
         <link rel="stylesheet" href="index.css" />
     </head>
     <body>
-        <div class="innerContent">
-            <img src="../images/logo.png" alt="logo" width="50" height="50" class="logo" />
-            <div id="authenticateSection" class="authenticateSection">
-                <p>Start recording the process</p>
-                <a href="https://app.flowl.app/login" target="_blank" class="signInBtn">Sign In</a>
+        <div class="popup-header">
+            <img src="../images/logo.svg" alt="logo" class="header-logo" >
+        </div>
+        <div id="unauthorized" class="unauthorized hidden">
+            <div class="welcome">
+                <span>&#128075;</span>
+                <span>Welcome</span>
             </div>
-            <div id="startRecordingSession" class="hidden startRecordingSession">
-                <p>Hello, <span id="userFirstName"></span></p>
-                <button id="startRecordingBtn">Start Recording</button>
-            </div>
-            <div id="stopRecordingSection" class="hidden stopRecordingSection">
-                <button id="stopRecordingBtn">Stop Recording</button>
+            <div class="auth">
+                <a class="sign-in" href="https://app.flowl.app/login" target="_blank">Sign In</a>
+                <a class="examples">See Examples</a>
             </div>
         </div>
+        <div id="authorized" class="authorized hidden">
+            <div class="message">
+                <span>&#128075;</span>
+                <p>
+                    Hello <span id="userFirstName"></span>,
+                </p>
+                <br>
+                <p>Start capturing your flow!</p>
+            </div>
+            <div class="recording-action">
+                <button id="start-recording" class="recording-btn hidden">Start Capturing</button>
+                <button id="stop-recording" class="recording-btn hidden">Stop Capturing</button>
+            </div>
+        </div>
+<!--        <div class="innerContent">-->
+<!--            <img src="../images/logo.png" alt="logo" width="50" height="50" class="logo" />-->
+<!--            <div id="authenticateSection" class="authenticateSection">-->
+<!--                <p>Start recording the process</p>-->
+<!--                <a href="https://app.flowl.app/login" target="_blank" class="signInBtn">Sign In</a>-->
+<!--            </div>-->
+<!--            <div id="startRecordingSession" class="hidden startRecordingSession">-->
+<!--                <p>Hello, <span id="userFirstName"></span></p>-->
+<!--                <button id="startRecordingBtn">Start Recording</button>-->
+<!--            </div>-->
+<!--            <div id="stopRecordingSection" class="hidden stopRecordingSection">-->
+<!--                <button id="stopRecordingBtn">Stop Recording</button>-->
+<!--            </div>-->
+<!--        </div>-->
         <script src="bootstrap.min.js"></script>
         <script type="text/javascript" src="../scripts/utils.js"></script>
         <script type="text/javascript" src="index.js"></script>
