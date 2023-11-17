@@ -35,7 +35,7 @@ const refreshIdToken = async (refreshToken) => {
     }
 }
 
-const insertRecordingTimeIntoDb = async (userId, recordingId, idToken, recordingTimeMilliSeconds) => {
+const insertRecordingTimeIntoDb = async (userId, recordingId, idToken, recordingTimeMilliSeconds, userName) => {
     fetch(
         `${firebaseConfig.databaseURL}/users/${userId}/${recordingId}/details/.json?auth=${idToken}`,
         {
@@ -45,6 +45,7 @@ const insertRecordingTimeIntoDb = async (userId, recordingId, idToken, recording
             },
             body: JSON.stringify({
                 recordingTime: recordingTimeMilliSeconds,
+                userName: userName,
             }),
         }
     )
@@ -85,7 +86,8 @@ try {
                         message.userId,
                         message.sessionId,
                         idToken,
-                        message.data.recordingTime
+                        message.data.recordingTime,
+                        message.userName,
                     );
                     chrome.tabs.create(
                         { url: `https://app.flowl.app/recording/${message.sessionId}` }
@@ -99,6 +101,34 @@ try {
 } catch (error) {
     console.error(error);
 }
+
+chrome.runtime.onMessage.addListener((message) => {
+    if (message.type === 'webEventCaptured' && message.event === 'MY_SCREENSHOTER_START_RECORDING') {
+        chrome.storage.local.get((res) => {
+            if (res?.user) {
+                chrome.tabs.query({ active: true }).then(result => {
+                    chrome.tabs.sendMessage(
+                      result[0].id,
+                      {
+                          startRecording: true,
+                          userId: res.user.id,
+                          refreshToken: res.user.refreshToken,
+                          sessionId: message.sessionId,
+                      }
+                    );
+
+                    const recordingStartTime = Date.now();
+
+                    chrome.storage.local.set({
+                        recordingStartTime: recordingStartTime,
+                        sessionId: message.sessionId,
+                        recording: true,
+                    });
+                })
+            }
+        })
+    }
+});
 
 chrome.runtime.onInstalled.addListener(() => {
     chrome.alarms.create('refreshIdToken', { periodInMinutes: 50 });

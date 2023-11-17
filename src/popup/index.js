@@ -11,28 +11,15 @@ const unauthorizedSection = document.getElementById('unauthorized');
 const userFirstName = document.getElementById('userFirstName');
 
 const startRecording = function () {
-    chrome.tabs.query({ active: true }).then((result) => {
-        if (result?.[0]?.id) {
-            const currentSessionId = generateUniqueSessionId();
-            chrome.tabs.sendMessage(
-                result[0].id,
-                {
-                    startRecording: true,
-                    userId: currentUseId,
-                    refreshToken: currentRefreshToken,
-                    sessionId: currentSessionId,
-                }
-            );
+    stopRecordingBtn.addEventListener('click', stopRecording);
 
-            stopRecordingBtn.addEventListener('click', stopRecording);
-
-            recordingStartTime = Date.now();
-            chrome.storage.local.set({ recordingStartTime: recordingStartTime, sessionId: currentSessionId, recording: true, });
-
-            // Close popup
-            window.close();
-        }
+    chrome.runtime.sendMessage({
+        type: 'webEventCaptured',
+        event: 'MY_SCREENSHOTER_START_RECORDING',
+        sessionId: generateUniqueSessionId()
     });
+
+    window.close();
 };
 
 const stopRecording = function () {
@@ -46,6 +33,7 @@ const stopRecording = function () {
                         stopRecording: true,
                         data: {
                             userId: result?.user?.id,
+                            userName: result?.user?.name || '',
                             refreshToken: result?.user?.refreshToken,
                             sessionId: result?.sessionId,
                             recordingStartTime: result?.recordingStartTime,
@@ -96,16 +84,6 @@ const onSignOut = function () {
 
     chrome.storage.local.set({ recordingStartTime: null, sessionId: null, idToken: null });
 }
-
-// chrome.storage.local.get(["user", "recordingStartTime"]).then((result) => {
-//     recordingStartTime = result?.recordingStartTime;
-//
-//     if (result?.user) {
-//         onSignIn(result.user);
-//     } else {
-//         onSignOut();
-//     }
-// });
 
 chrome.storage.onChanged.addListener((changes, namespace) => {
     if ("user" in changes) {
