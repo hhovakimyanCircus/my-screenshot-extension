@@ -75,10 +75,12 @@ const stopRecordingFromScreen = async () => {
     document.getElementById('myScreenshotStopRecordingWrapper').remove();
 
     const storageData = await chrome.storage.local.get(["sessionId", "user", "recordingStartTime"]);
+
     chrome.runtime.sendMessage({
         event: "STOP_RECORDING",
         sessionId: storageData?.sessionId,
         userId: storageData?.user?.id,
+        userName: storageData?.user.name.split(' ')[0] || '',
         refreshToken: storageData?.user?.refreshToken,
         data: {
             recordingTime: Date.now() - storageData.recordingStartTime,
@@ -135,6 +137,7 @@ chrome.runtime.onMessage.addListener((message, sender) => {
             sessionId: message.data.sessionId,
             userId: message.data.userId,
             refreshToken: message.data.refreshToken,
+            userName: message.data?.userName.split(' ')[0] || '',
             data: {
                 recordingTime: Date.now() - message.data.recordingStartTime,
             }
