@@ -35,7 +35,7 @@ const refreshIdToken = async (refreshToken) => {
     }
 }
 
-const insertRecordingTimeIntoDb = async (userId, recordingId, idToken, recordingTimeMilliSeconds) => {
+const insertRecordingTimeIntoDb = async (userId, recordingId, idToken, recordingTimeMilliSeconds, userName) => {
     fetch(
         `${firebaseConfig.databaseURL}/users/${userId}/${recordingId}/details/.json?auth=${idToken}`,
         {
@@ -45,6 +45,7 @@ const insertRecordingTimeIntoDb = async (userId, recordingId, idToken, recording
             },
             body: JSON.stringify({
                 recordingTime: recordingTimeMilliSeconds,
+                userName: userName,
             }),
         }
     )
@@ -85,7 +86,8 @@ try {
                         message.userId,
                         message.sessionId,
                         idToken,
-                        message.data.recordingTime
+                        message.data.recordingTime,
+                        message.userName,
                     );
                     chrome.tabs.create(
                         { url: `https://app.flowl.app/recording/${message.sessionId}` }

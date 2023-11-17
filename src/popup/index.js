@@ -30,6 +30,7 @@ const stopRecording = function () {
                         stopRecording: true,
                         data: {
                             userId: result?.user?.id,
+                            userName: result?.user?.name || '',
                             refreshToken: result?.user?.refreshToken,
                             sessionId: result?.sessionId,
                             recordingStartTime: result?.recordingStartTime,
