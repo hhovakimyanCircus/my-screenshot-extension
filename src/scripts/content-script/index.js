@@ -20,11 +20,11 @@ const onDocumentClick = function (event, sessionId, userId, refreshToken) {
         return;
     }
 
-    if (['myScreenshotStopRecordingWrapper', 'stopRecordingBtn'].includes(event.target.id)) {
+    if (['stopRecordingBtn', 'stopRecordingBtnWhiteDot'].includes(event.target.id)) {
         return;
     }
 
-    document.getElementById('myScreenshotStopRecordingWrapper').style.display = 'none';
+    document.getElementById('stopRecordingBtn').style.display = 'none';
 
     setTimeout(() => {
         chrome.runtime.sendMessage({
@@ -72,7 +72,7 @@ const addOverlayToScreen = (onRecordingStart) => {
 
 const stopRecordingFromScreen = async () => {
     document.getElementsByTagName('body')[0].removeEventListener('click', onDocumentClick);
-    document.getElementById('myScreenshotStopRecordingWrapper').remove();
+    document.getElementById('stopRecordingBtn').remove();
 
     const storageData = await chrome.storage.local.get(["sessionId", "user", "recordingStartTime"]);
 
@@ -80,10 +80,10 @@ const stopRecordingFromScreen = async () => {
         event: "STOP_RECORDING",
         sessionId: storageData?.sessionId,
         userId: storageData?.user?.id,
-        userName: storageData?.user.name.split(' ')[0] || '',
         refreshToken: storageData?.user?.refreshToken,
         data: {
             recordingTime: Date.now() - storageData.recordingStartTime,
+            userName: storageData?.user.name.split(' ')[0] || '',
         }
     });
 
@@ -91,23 +91,19 @@ const stopRecordingFromScreen = async () => {
 }
 
 const addStopRecordingButtonToScreen = () => {
-    const buttonWrapper = document.createElement('div');
-    buttonWrapper.setAttribute('style', convertCssStylesToText(stopRecordingButtonWrapperStyles));
-    buttonWrapper.setAttribute('id', 'myScreenshotStopRecordingWrapper');
-
-    const button = document.createElement('div');
+    const button = document.createElement('button');
     button.setAttribute('id', 'stopRecordingBtn');
     button.setAttribute('style', convertCssStylesToText(stopRecordingButtonStyles));
-    button.addEventListener('click', stopRecordingFromScreen)
+    button.addEventListener('click', stopRecordingFromScreen);
 
     const whiteDot = document.createElement('div');
+    whiteDot.setAttribute('id', 'stopRecordingBtnWhiteDot');
     whiteDot.setAttribute('style', convertCssStylesToText(whiteDotStyles));
+    whiteDot.addEventListener('click', stopRecordingFromScreen);
 
     button.appendChild(whiteDot);
 
-    buttonWrapper.appendChild(button);
-
-    document.body.appendChild(buttonWrapper);
+    document.body.appendChild(button);
 }
 
 window.addEventListener('MY_SCREENSHOTER_LOGIN', (event) => {
@@ -141,14 +137,14 @@ chrome.runtime.onMessage.addListener((message, sender) => {
             sessionId: message.data.sessionId,
             userId: message.data.userId,
             refreshToken: message.data.refreshToken,
-            userName: message.data?.userName.split(' ')[0] || '',
             data: {
                 recordingTime: Date.now() - message.data.recordingStartTime,
+                userName: message.data?.userName.split(' ')[0] || '',
             }
         });
 
         document.getElementsByTagName('body')[0].removeEventListener('click', onDocumentClick);
-        document.getElementById('myScreenshotStopRecordingWrapper').remove();
+        document.getElementById('stopRecordingBtn').remove();
     } else if (message.startRecording) {
         if (message.tabChange) {
             listenToPageClicks(message.sessionId, message.userId, message.refreshToken);
@@ -203,12 +199,12 @@ chrome.runtime.onMessage.addListener((message, sender) => {
             ).finally(() => {
                 canvas.remove();
                 image.remove();
-                document.getElementById('myScreenshotStopRecordingWrapper').style.display = 'flex';
+                document.getElementById('stopRecordingBtn').style.display = 'flex';
             })
         }
     } else if (message.event === 'URL_CHANGE') {
         chrome.storage.local.get((result) => {
-            const elem = document.getElementById('myScreenshotStopRecordingWrapper');
+            const elem = document.getElementById('stopRecordingBtn');
 
             if (result.recording && !elem) {
                 addStopRecordingButtonToScreen();

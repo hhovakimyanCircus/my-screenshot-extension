@@ -87,10 +87,10 @@ try {
                         message.sessionId,
                         idToken,
                         message.data.recordingTime,
-                        message.userName,
+                        message.data.userName,
                     );
                     chrome.tabs.create(
-                        { url: `https://app.flowl.app/recording/${message.sessionId}` }
+                        { url: `https://app.flowl.app/instructiondoc/${message.sessionId}` }
                     );
                     break;
                 default:

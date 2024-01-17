@@ -17,30 +17,6 @@ const overlayTextStyles = {
     'font-weight': 700,
 };
 
-// const stopRecordingButtonWrapperStyles = {
-//     width: '225px',
-//     padding: '25px 0',
-//     'border-radius': '7px',
-//     'box-shadow': '0px 0px 19px 13px #00000040',
-//     'background-color': 'grey',
-//     position: 'fixed',
-//     bottom: '30px',
-//     left: '30px',
-//     display: 'flex',
-//     'justify-content': 'center',
-//     'z-index': 50,
-// }
-
-const stopRecordingButtonWrapperStyles = {
-    position: 'fixed',
-    bottom: '24px',
-    left: 0,
-    right: 0,
-    'z-index': 50,
-    display: 'flex',
-    'justify-content': 'center',
-}
-
 const stopRecordingButtonStyles = {
     width: '56px',
     height: '56px',
@@ -51,6 +27,10 @@ const stopRecordingButtonStyles = {
     background: '#EF4444',
     cursor: 'pointer',
     'box-shadow': '0px 1px 3px 0px rgba(0, 0, 0, 0.30), 0px 4px 8px 3px rgba(0, 0, 0, 0.15)',
+    position: 'fixed',
+    left: 'calc(50% - 28px)',
+    bottom: '24px',
+    'z-index': 99999,
 }
 
 const whiteDotStyles = {
@@ -59,17 +39,3 @@ const whiteDotStyles = {
     'border-radius': '100px',
     background: '#fff',
 }
-
-// const stopRecordingButtonStyles = {
-//     'background-color': '#FF5C77',
-//     color: '#fff',
-//     'font-weight': 700,
-//     'font-size': '18px',
-//     'text-align': 'center',
-//     'border-radius': '7px',
-//     cursor: 'pointer',
-//     padding: '7px 16px',
-//     outline: 'none',
-//     width: '166px',
-//     border: 0,
-// }
