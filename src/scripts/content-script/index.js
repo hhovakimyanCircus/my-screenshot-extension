@@ -122,6 +122,22 @@ window.addEventListener('MY_SCREENSHOTER_LOGOUT', () => {
     chrome.storage.local.set({ user: null });
 });
 
+window.addEventListener('MY_SCREENSHOTER_GET_TABS', () => {
+    chrome.runtime.sendMessage({
+        type: 'webEventCaptured',
+        event: 'MY_SCREENSHOTER_GET_TABS',
+    });
+})
+
+window.addEventListener('MY_SCREENSHOTER_RECORD_SELECTED_TAB', (event) => {
+    chrome.runtime.sendMessage({
+        type: 'webEventCaptured',
+        event: 'MY_SCREENSHOTER_RECORD_SELECTED_TAB',
+        sessionId: generateUniqueSessionId(),
+        tabIndex: event.detail.tabIndex,
+    });
+})
+
 window.addEventListener('MY_SCREENSHOTER_START_RECORDING', () => {
     chrome.runtime.sendMessage({
         type: 'webEventCaptured',
@@ -211,5 +227,9 @@ chrome.runtime.onMessage.addListener((message, sender) => {
                 listenToPageClicks(result.sessionId, result.user.id, result.user.refreshToken)
             }
         })
+    } else if (message.event === 'GET_TABS_RESULT') {
+        const eventToDispatch = new CustomEvent('MY_SCREENSHOTER_TABS_RESULT', { detail: message.data });
+
+        document.dispatchEvent(eventToDispatch);
     }
 });

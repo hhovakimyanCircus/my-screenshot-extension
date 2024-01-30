@@ -102,31 +102,65 @@ try {
     console.error(error);
 }
 
-chrome.runtime.onMessage.addListener((message) => {
-    if (message.type === 'webEventCaptured' && message.event === 'MY_SCREENSHOTER_START_RECORDING') {
-        chrome.storage.local.get((res) => {
-            if (res?.user) {
-                chrome.tabs.query({ active: true }).then(result => {
-                    chrome.tabs.sendMessage(
-                      result[0].id,
-                      {
-                          startRecording: true,
-                          userId: res.user.id,
-                          refreshToken: res.user.refreshToken,
-                          sessionId: message.sessionId,
-                      }
-                    );
+chrome.runtime.onMessage.addListener((message, sender) => {
+    if (message.type === 'webEventCaptured') {
+        if (message.event === 'MY_SCREENSHOTER_START_RECORDING') {
+            chrome.storage.local.get((res) => {
+                if (res?.user) {
+                    chrome.tabs.query({ active: true }).then(result => {
 
-                    const recordingStartTime = Date.now();
+                        chrome.tabs.sendMessage(
+                          result[0].id,
+                          {
+                              startRecording: true,
+                              userId: res.user.id,
+                              refreshToken: res.user.refreshToken,
+                              sessionId: message.sessionId,
+                          }
+                        );
 
-                    chrome.storage.local.set({
-                        recordingStartTime: recordingStartTime,
-                        sessionId: message.sessionId,
-                        recording: true,
-                    });
+                        const recordingStartTime = Date.now();
+
+                        chrome.storage.local.set({
+                            recordingStartTime: recordingStartTime,
+                            sessionId: message.sessionId,
+                            recording: true,
+                        });
+                    })
+                }
+            })
+        } else if (message.event === 'MY_SCREENSHOTER_GET_TABS') {
+            chrome.tabs.query({ currentWindow: true }).then(result => {
+                chrome.tabs.sendMessage(sender.tab.id, {
+                    event: 'GET_TABS_RESULT',
+                    data: result,
                 })
-            }
-        })
+            })
+        } else if (message.event === 'MY_SCREENSHOTER_RECORD_SELECTED_TAB') {
+            chrome.storage.local.get((res) => {
+                if (res?.user) {
+                    chrome.tabs.query({ index: message.tabIndex }).then(result => {
+                        chrome.tabs.sendMessage(
+                          result[0].id,
+                          {
+                              startRecording: true,
+                              userId: res.user.id,
+                              refreshToken: res.user.refreshToken,
+                              sessionId: message.sessionId,
+                          }
+                        );
+
+                        const recordingStartTime = Date.now();
+
+                        chrome.storage.local.set({
+                            recordingStartTime: recordingStartTime,
+                            sessionId: message.sessionId,
+                            recording: true,
+                        });
+                    })
+                }
+            })
+        }
     }
 });
 
