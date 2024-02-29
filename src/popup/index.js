@@ -14,12 +14,11 @@ const startRecording = function () {
     stopRecordingBtn.addEventListener('click', stopRecording);
 
     chrome.runtime.sendMessage({
-        type: 'webEventCaptured',
         event: 'MY_SCREENSHOTER_START_RECORDING',
         sessionId: generateUniqueSessionId()
+    }, () => {
+        window.close();
     });
-
-    window.close();
 };
 
 const stopRecording = function () {
