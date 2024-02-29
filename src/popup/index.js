@@ -17,9 +17,10 @@ const startRecording = function () {
         type: 'webEventCaptured',
         event: 'MY_SCREENSHOTER_START_RECORDING',
         sessionId: generateUniqueSessionId()
-    });
+    }, function () {
+        window.close();
+    })
 
-    window.close();
 };
 
 const stopRecording = function () {
@@ -70,7 +71,7 @@ const onSignIn = function (authenticationData) {
 }
 
 const onSignOut = function () {
-    currentRefreshToken =  '';
+    currentRefreshToken = '';
     currentUseId = '';
 
     if (recordingStartTime) {
