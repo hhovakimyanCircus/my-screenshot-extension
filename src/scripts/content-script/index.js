@@ -139,7 +139,9 @@ window.addEventListener('MY_SCREENSHOTER_START_RECORDING', () => {
 });
 
 chrome.runtime.onMessage.addListener((message, sender) => {
-    if (message.clearRecordingScreen) {
+    if (message.stopRecordingFromPopup) {
+        document.getElementById('stopRecordingBtn').click();
+    } else if (message.clearRecordingScreen) {
         clearRecordingLayout();
     } else if (message.startRecording) {
         if (message.tabChange) {

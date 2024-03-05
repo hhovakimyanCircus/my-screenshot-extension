@@ -21,36 +21,11 @@ const startRecording = function () {
     });
 };
 
-const stopRecording = function () {
-    chrome.tabs.query({ active: true }).then((activeTabsResult) => {
-        if (activeTabsResult?.[0]?.id) {
-            const tabId = activeTabsResult[0].id;
-            chrome.storage.local.get(["user", "recordingStartTime", "sessionId"]).then((result) => {
-                chrome.tabs.sendMessage(
-                    tabId,
-                    {
-                        stopRecording: true,
-                        data: {
-                            userId: result?.user?.id,
-                            userName: result?.user?.name || '',
-                            refreshToken: result?.user?.refreshToken,
-                            sessionId: result?.sessionId,
-                            recordingStartTime: result?.recordingStartTime,
-                        }
-                    }
-                );
-
-                startRecordingBtn.addEventListener('click', startRecording);
-
-                recordingStartTime = null;
-                chrome.storage.local.set({ recordingStartTime: null, sessionId: null, idToken: null, recording: false });
-
-                // Close popup
-                window.close();
-            });
-        }
-    });
-};
+const stopRecording = () => {
+    chrome.tabs.query({ active: true }).then(tab => {
+        chrome.tabs.sendMessage(tab[0].id, { stopRecordingFromPopup: true })
+    })
+}
 
 const onSignIn = function (authenticationData) {
     currentRefreshToken = authenticationData.refreshToken;
