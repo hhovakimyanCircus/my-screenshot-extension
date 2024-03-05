@@ -14,7 +14,8 @@
     "activeTab",
     "storage",
     "webNavigation",
-    "alarms"
+    "alarms",
+    "scripting"
   ],
   "host_permissions": [
     "<all_urls>"
@@ -28,7 +29,8 @@
   "content_scripts": [
     {
       "matches": ["https://*/*", "http://localhost:3000/*"],
-      "js": ["scripts/utils.js", "scripts/content-script/styles.js", "scripts/content-script/index.js"]
+      "js": ["scripts/utils.js", "scripts/content-script/styles.js", "scripts/content-script/index.js"],
+      "run_at": "document_start"
     },
     {
       "matches": ["http://localhost:3000/*", "https://app.flowl.app/*"],

@@ -85,10 +85,10 @@ try {
                     await chrome.tabs.query({}).then(tabs => {
                         tabs.forEach(tab => {
                             chrome.tabs.sendMessage(
-                              tab.id,
-                              {
-                                  clearRecordingScreen: true,
-                              }
+                                tab.id,
+                                {
+                                    clearRecordingScreen: true,
+                                }
                             )
                         })
                     })
@@ -116,13 +116,13 @@ try {
                     chrome.tabs.query({}).then(tabs => {
                         tabs.forEach(tab => {
                             chrome.tabs.sendMessage(
-                              tab.id,
-                              {
-                                  startRecording: true,
-                                  userId: res.user.id,
-                                  refreshToken: res.user.refreshToken,
-                                  sessionId: message.sessionId,
-                              }
+                                tab.id,
+                                {
+                                    startRecording: true,
+                                    userId: res.user.id,
+                                    refreshToken: res.user.refreshToken,
+                                    sessionId: message.sessionId,
+                                }
                             )
                         })
 
@@ -148,13 +148,13 @@ try {
                 if (res?.user) {
                     chrome.tabs.query({ index: message.tabIndex }).then(result => {
                         chrome.tabs.sendMessage(
-                          result[0].id,
-                          {
-                              startRecording: true,
-                              userId: res.user.id,
-                              refreshToken: res.user.refreshToken,
-                              sessionId: message.sessionId,
-                          }
+                            result[0].id,
+                            {
+                                startRecording: true,
+                                userId: res.user.id,
+                                refreshToken: res.user.refreshToken,
+                                sessionId: message.sessionId,
+                            }
                         );
 
                         const recordingStartTime = Date.now();
@@ -173,8 +173,18 @@ try {
     console.error(error);
 }
 
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener(async () => {
     chrome.alarms.create('refreshIdToken', { periodInMinutes: 50 });
+
+    for (const cs of chrome.runtime.getManifest().content_scripts) {
+        for (const tab of await chrome.tabs.query({ url: cs.matches })) {
+            chrome.scripting.executeScript({
+                files: cs.js,
+                target: { tabId: tab.id, allFrames: cs.all_frames },
+                injectImmediately: cs.run_at === 'document_start',
+            });
+        }
+    }
 });
 
 chrome.alarms.onAlarm.addListener((alarm) => {
@@ -214,6 +224,6 @@ chrome.webNavigation.onCommitted.addListener((details) => {
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     chrome.tabs.sendMessage(tabId, {
         event: 'URL_CHANGE',
-        data: {tabId, changeInfo, tab}
+        data: { tabId, changeInfo, tab }
     })
 })
