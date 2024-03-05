@@ -15,7 +15,7 @@ const insertRecordingStepsIntoDb = async (userId, recordingId, idToken, data) =>
       .catch((error) => { console.error(error) })
 }
 
-const onDocumentClick = function (event, sessionId, userId, refreshToken) {
+const onDocumentClick = function (event) {
     if (!chrome.runtime?.id) {
         return;
     }
@@ -24,32 +24,25 @@ const onDocumentClick = function (event, sessionId, userId, refreshToken) {
         return;
     }
 
-    document.getElementById('stopRecordingBtn').style.display = 'none';
+    chrome.storage.local.get(storage => {
+        document.getElementById('stopRecordingBtn').style.display = 'none';
 
-    setTimeout(() => {
-        chrome.runtime.sendMessage({
-            event: "CLICK_ON_PAGE",
-            sessionId: sessionId,
-            userId: userId,
-            refreshToken: refreshToken,
-            data: {
-                elementName: event.target.innerText,
-            },
-            eventData: {
-                clientX: event.clientX,
-                clientY: event.clientY,
-            }
-        });
-    }, 100)
-}
-
-const listenToPageClicks = (sessionId, userId, refreshToken) => {
-    document.body.addEventListener(
-      'mousedown',
-      (event) => {
-          onDocumentClick(event, sessionId, userId, refreshToken)
-      }
-    );
+        setTimeout(() => {
+            chrome.runtime.sendMessage({
+                event: "CLICK_ON_PAGE",
+                sessionId: storage.sessionId,
+                userId: storage.user.id,
+                refreshToken: storage.user.refreshToken,
+                data: {
+                    elementName: event.target.innerText,
+                },
+                eventData: {
+                    clientX: event.clientX,
+                    clientY: event.clientY,
+                }
+            });
+        }, 100)
+    })
 }
 
 const addOverlayToScreen = (onRecordingStart) => {
@@ -70,13 +63,12 @@ const addOverlayToScreen = (onRecordingStart) => {
     }, 3000)
 }
 
-const stopRecordingFromScreen = async () => {
-    document.getElementsByTagName('body')[0].removeEventListener('click', onDocumentClick);
-    document.getElementById('stopRecordingBtn').remove();
-
+const stopRecordingFromScreen = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     const storageData = await chrome.storage.local.get(["sessionId", "user", "recordingStartTime"]);
 
-    chrome.runtime.sendMessage({
+    await chrome.runtime.sendMessage({
         event: "STOP_RECORDING",
         sessionId: storageData?.sessionId,
         userId: storageData?.user?.id,
@@ -86,8 +78,11 @@ const stopRecordingFromScreen = async () => {
             userName: storageData?.user.name.split(' ')[0] || '',
         }
     });
+}
 
-    chrome.storage.local.set({ recordingStartTime: null, sessionId: null, idToken: null, recording: false });
+const clearRecordingLayout = () => {
+    document.body.removeEventListener('click', onDocumentClick);
+    document.getElementById('stopRecordingBtn').remove();
 }
 
 const addStopRecordingButtonToScreen = () => {
@@ -124,14 +119,12 @@ window.addEventListener('MY_SCREENSHOTER_LOGOUT', () => {
 
 window.addEventListener('MY_SCREENSHOTER_GET_TABS', () => {
     chrome.runtime.sendMessage({
-        type: 'webEventCaptured',
         event: 'MY_SCREENSHOTER_GET_TABS',
     });
 })
 
 window.addEventListener('MY_SCREENSHOTER_RECORD_SELECTED_TAB', (event) => {
     chrome.runtime.sendMessage({
-        type: 'webEventCaptured',
         event: 'MY_SCREENSHOTER_RECORD_SELECTED_TAB',
         sessionId: generateUniqueSessionId(),
         tabIndex: event.detail.tabIndex,
@@ -140,34 +133,29 @@ window.addEventListener('MY_SCREENSHOTER_RECORD_SELECTED_TAB', (event) => {
 
 window.addEventListener('MY_SCREENSHOTER_START_RECORDING', () => {
     chrome.runtime.sendMessage({
-        type: 'webEventCaptured',
         event: 'MY_SCREENSHOTER_START_RECORDING',
         sessionId: generateUniqueSessionId()
     });
 });
 
 chrome.runtime.onMessage.addListener((message, sender) => {
-    if (message.stopRecording) {
-        chrome.runtime.sendMessage({
-            event: "STOP_RECORDING",
-            sessionId: message.data.sessionId,
-            userId: message.data.userId,
-            refreshToken: message.data.refreshToken,
-            data: {
-                recordingTime: Date.now() - message.data.recordingStartTime,
-                userName: message.data?.userName.split(' ')[0] || '',
-            }
-        });
-
-        document.getElementsByTagName('body')[0].removeEventListener('click', onDocumentClick);
-        document.getElementById('stopRecordingBtn').remove();
+    if (message.stopRecordingFromPopup) {
+        document.getElementById('stopRecordingBtn').click();
+    } else if (message.clearRecordingScreen) {
+        clearRecordingLayout();
     } else if (message.startRecording) {
         if (message.tabChange) {
-            listenToPageClicks(message.sessionId, message.userId, message.refreshToken);
+            document.body.addEventListener(
+              'mousedown',
+              onDocumentClick,
+            )
             addStopRecordingButtonToScreen();
         } else {
             addOverlayToScreen(() => {
-                listenToPageClicks(message.sessionId, message.userId, message.refreshToken);
+                document.body.addEventListener(
+                  'mousedown',
+                  onDocumentClick,
+                )
                 addStopRecordingButtonToScreen();
             });
         }
@@ -224,7 +212,10 @@ chrome.runtime.onMessage.addListener((message, sender) => {
 
             if (result.recording && !elem) {
                 addStopRecordingButtonToScreen();
-                listenToPageClicks(result.sessionId, result.user.id, result.user.refreshToken)
+                document.body.addEventListener(
+                  'mousedown',
+                  onDocumentClick,
+                )
             }
         })
     } else if (message.event === 'GET_TABS_RESULT') {

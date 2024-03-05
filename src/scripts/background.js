@@ -82,42 +82,49 @@ try {
                     });
                     break;
                 case 'STOP_RECORDING':
-                    insertRecordingTimeIntoDb(
+                    await chrome.tabs.query({}).then(tabs => {
+                        tabs.forEach(tab => {
+                            chrome.tabs.sendMessage(
+                              tab.id,
+                              {
+                                  clearRecordingScreen: true,
+                              }
+                            )
+                        })
+                    })
+
+                    await insertRecordingTimeIntoDb(
                         message.userId,
                         message.sessionId,
                         idToken,
                         message.data.recordingTime,
                         message.data.userName,
                     );
-                    chrome.tabs.create(
+
+                    await chrome.storage.local.set({ recordingStartTime: null, sessionId: null, idToken: null, recording: false });
+
+                    await chrome.tabs.create(
                         { url: `https://app.flowl.app/instructiondoc/${message.sessionId}` }
                     );
                     break;
                 default:
                     break;
             }
-        }
-    });
-} catch (error) {
-    console.error(error);
-}
-
-chrome.runtime.onMessage.addListener((message, sender) => {
-    if (message.type === 'webEventCaptured') {
-        if (message.event === 'MY_SCREENSHOTER_START_RECORDING') {
+        } else if (message.event === 'MY_SCREENSHOTER_START_RECORDING') {
             chrome.storage.local.get((res) => {
                 if (res?.user) {
-                    chrome.tabs.query({ active: true }).then(result => {
-
-                        chrome.tabs.sendMessage(
-                          result[0].id,
-                          {
-                              startRecording: true,
-                              userId: res.user.id,
-                              refreshToken: res.user.refreshToken,
-                              sessionId: message.sessionId,
-                          }
-                        );
+                    chrome.tabs.query({}).then(tabs => {
+                        tabs.forEach(tab => {
+                            chrome.tabs.sendMessage(
+                              tab.id,
+                              {
+                                  startRecording: true,
+                                  userId: res.user.id,
+                                  refreshToken: res.user.refreshToken,
+                                  sessionId: message.sessionId,
+                              }
+                            )
+                        })
 
                         const recordingStartTime = Date.now();
 
@@ -161,8 +168,10 @@ chrome.runtime.onMessage.addListener((message, sender) => {
                 }
             })
         }
-    }
-});
+    });
+} catch (error) {
+    console.error(error);
+}
 
 chrome.runtime.onInstalled.addListener(() => {
     chrome.alarms.create('refreshIdToken', { periodInMinutes: 50 });

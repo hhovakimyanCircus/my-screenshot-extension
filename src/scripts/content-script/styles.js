@@ -31,11 +31,14 @@ const stopRecordingButtonStyles = {
     left: 'calc(50% - 28px)',
     bottom: '24px',
     'z-index': 99999,
+    'border': 'none',
 }
 
 const whiteDotStyles = {
     height: '14px',
     width: '14px',
+    'min-height': '14px',
+    'min-width': '14px',
     'border-radius': '100px',
     background: '#fff',
 }
