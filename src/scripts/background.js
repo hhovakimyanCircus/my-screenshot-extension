@@ -85,10 +85,10 @@ try {
                     await chrome.tabs.query({}).then(tabs => {
                         tabs.forEach(tab => {
                             chrome.tabs.sendMessage(
-                              tab.id,
-                              {
-                                  clearRecordingScreen: true,
-                              }
+                                tab.id,
+                                {
+                                    clearRecordingScreen: true,
+                                }
                             )
                         })
                     })
@@ -116,13 +116,13 @@ try {
                     chrome.tabs.query({}).then(tabs => {
                         tabs.forEach(tab => {
                             chrome.tabs.sendMessage(
-                              tab.id,
-                              {
-                                  startRecording: true,
-                                  userId: res.user.id,
-                                  refreshToken: res.user.refreshToken,
-                                  sessionId: message.sessionId,
-                              }
+                                tab.id,
+                                {
+                                    startRecording: true,
+                                    userId: res.user.id,
+                                    refreshToken: res.user.refreshToken,
+                                    sessionId: message.sessionId,
+                                }
                             )
                         })
 
@@ -144,28 +144,8 @@ try {
                 })
             })
         } else if (message.event === 'MY_SCREENSHOTER_RECORD_SELECTED_TAB') {
-            chrome.storage.local.get((res) => {
-                if (res?.user) {
-                    chrome.tabs.query({ index: message.tabIndex }).then(result => {
-                        chrome.tabs.sendMessage(
-                          result[0].id,
-                          {
-                              startRecording: true,
-                              userId: res.user.id,
-                              refreshToken: res.user.refreshToken,
-                              sessionId: message.sessionId,
-                          }
-                        );
-
-                        const recordingStartTime = Date.now();
-
-                        chrome.storage.local.set({
-                            recordingStartTime: recordingStartTime,
-                            sessionId: message.sessionId,
-                            recording: true,
-                        });
-                    })
-                }
+            chrome.tabs.query({ index: message.tabIndex }, (result) => {
+                chrome.tabs.update(result[0].id, { active: true });
             })
         }
     });
@@ -214,6 +194,6 @@ chrome.webNavigation.onCommitted.addListener((details) => {
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     chrome.tabs.sendMessage(tabId, {
         event: 'URL_CHANGE',
-        data: {tabId, changeInfo, tab}
+        data: { tabId, changeInfo, tab }
     })
 })
